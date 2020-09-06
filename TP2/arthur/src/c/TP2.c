@@ -39,3 +39,13 @@ void SelectionSort(int *array, int n, void (*swap)(const void *, const void *))
 		swap(&array[menor], &array[i]);
 	}
 }
+/*
+PESQUISA BINARIA
+SELECAO RECURSIVA
+SHELLSORT
+QUICKSORT
+BOLHA
+RADIXSORT
+INSERCAO PARCIAL
+HEAPSORT PARCIAL
+*/
