@@ -1,5 +1,8 @@
 import java.io.*;
 import java.util.*;
+
+import jdk.jfr.events.FileWriteEvent;
+
 import java.time.*;
 
 public class TP2 {
@@ -62,6 +65,11 @@ interface OperateOnArray<T> {
 }
 
 @FunctionalInterface
+interface OperateOnArrayWithAuxiliar<T, Y> {
+	void Operate(T[] array, Y start);
+}
+
+@FunctionalInterface
 interface OperateOnArrayRand<T> {
 	void Operate(T[] array, Random start);
 }
@@ -72,13 +80,18 @@ interface OperateInArray<T, Y> {
 }
 
 @FunctionalInterface
+interface OperateOnArrayComplete<T, Y, Z> {
+	void Operate(T name, Y comparacao, Z tempo);
+}
+
+@FunctionalInterface
 interface OperateOnArrayWithArray<T> {
 	void Operate(T[] array, int v1, int v2);
 }
 
 @FunctionalInterface
 interface Sort<T> {
-	void Sort(T[] array, OperateInArray swap);
+	void Sort(T[] array, OperateInArray swap, OperateInArray compare, OperateInArray onComplete);
 }
 
 @FunctionalInterface
@@ -210,44 +223,82 @@ class Player {
 class SortingRelatedItems {
 	int amountOfComparisons = 0;
 	int amountOfSwaps = 0;
-
-	OperateOnArrayWithArray<Integer> SwapInt = (array, elementI, elementJ) -> {
-		Integer temp = array[elementI];
+	/**
+	 * Procedimento para efetuar o swap entre dois Player
+	 * 
+	 * @param array    O array contendo os elementos que devem ser trocados
+	 * @param elementI um dos elementos que serao envolvidos na troca
+	 * @param elementJ um dos elementos que serao envolvidos na troca
+	 */
+	OperateOnArrayWithArray<Player> SwapPlayer = (array, elementI, elementJ) -> {
+		Player temp = array[elementI];
 		array[elementI] = array[elementJ];
 		array[elementJ] = temp;
 		amountOfSwaps++;
 	};
+	/**
+	 * @param first  primeira String
+	 * @param second segunda String
+	 * @return boolean second > first
+	 * @apiNote first > second
+	 */
+	OperateInArray<String, Boolean> CompareStringBigger = (first, second) -> {
+		return first.compareTo(second) > 1;
+	};
+	/**
+	 * @param first  primeira String
+	 * @param second segunda String
+	 * @return boolean second < first
+	 * @apiNote first < second
+	 */
+	OperateInArray<String, Boolean> CompareStringSmaller = (first, second) -> {
+		return first.compareTo(second) < 1;
+	};
+	/**
+	 * @param first  primeira int
+	 * @param second segunda int
+	 * @return boolean second < first
+	 * @apiNote first < second
+	 */
 	OperateInArray<Integer, Boolean> CompareInt = (first, second) -> {
 		return (int) first > (int) second;
 	};
+	/**
+	 * @param first  primeira int
+	 * @param second segunda int
+	 * @return boolean second > first
+	 * @apiNote first > second
+	 */
 	OperateInArray<Integer, Boolean> CompareLesserInt = (first, second) -> {
 		return (int) first < (int) second;
 	};
-
-	OperateOnArray<Integer> PrintArrayInteger = (array, start) -> {
-		String auxiliar = "[";
+	/**
+	 * Printa os elementos do array.
+	 * 
+	 * @param array Player array a ser impresso
+	 * @param start Integer posição inicial
+	 */
+	OperateOnArrayWithAuxiliar<Player, Integer> PrintArrayInteger = (array, start) -> {
 		for (int i = 0; i < array.length; i++) {
-			auxiliar = auxiliar.concat(Integer.toString(array[i]));
-			auxiliar = auxiliar.concat("] ");
-			System.out.print(auxiliar);
-			auxiliar = "[";
+			array[i].PrintPlayer();
 		}
 	};
+	/**
+	 * Procedimento para gerar um log, que é chamado ao fim de todas as ordenações.
+	 * @param name Nome do exercicio
+	 * @param comparacao número de comparações executada pelo algoritmo
+	 * @param tempo tempo levado para executar o algoritmo
+	 */
+	OperateOnArrayComplete<String, Integer, Double> GenerateLog = (name, comparacao, tempo) -> {
+		try {
+			FileWriter toWrite = new FileWriter(new File("634878_"+name+".txt")
+	StringBuilder stringBuilder = new StringBuilder();stringBuilder.append("634878\t");stringBuilder.append(tempo);stringBuilder.append("\t");stringBuilder.append(comparacao);toWrite.write(stringBuilder.toString());}catch(
+	Exception e)
+	{
+		System.out.println("Ocorreu um erro ao finalizar o método de ordenação");
+	}};
 
-	SortWithComparison<Integer> SelectionSortInt = (array) -> {
-		amountOfComparisons = 0;
-		amountOfSwaps = 0;
-		for (int i = 0; i < (array.length - 1); i++) {
-			int menor = i;
-			for (int j = (i + 1); j < array.length; j++) {
-				amountOfComparisons++;
-				if (CompareInt.Operate(array[menor], array[j])) {
-					menor = j;
-				}
-			}
-			SwapInt.Operate(array, menor, i);
-		}
-	};
+
 	// PESQUISA SEQUENCIAL
 	// ORDENAÇÂO SELEçÂO
 	// INSERçÂO
