@@ -18,13 +18,18 @@ typedef struct Players
 } Player;
 void SwapInt(const void *elementI, const void *elementJ);
 void PrintArrayInt(void *array, int amountOfElement);
-void PrintElement(Player *_player);
+void PrintElement(Player *_player, int amount);
 void SelectionSort(int *array, int n, void (*swap)(const void *, const void *));
 bool IsAble(char *_word);
 char *GetLineFromFile(int lineToRead, FILE *csvReader);
 Player GetPlayerFromFile(char *word);
 void PlayerSet(int checker, Player *player, char *valueToSet);
 void PrintPlayer(Player *);
+void GenerateLog(char *name, int comparisons, double time);
+bool CompareStringBigger(char *first, char *second);
+bool CompareStringSmaller(char *first, char *second);
+bool CompareIntBigger(int first, int second);
+bool CompareIntSmaller(int first, int second);
 
 //region <------MAIN------>
 int main()
@@ -142,11 +147,11 @@ bool IsAble(char *_word)
 	}
 	return valueToReturn;
 }
-void SwapInt(const void *elementI, const void *elementJ)
+void SwapPlayer(const void *elementI, const void *elementJ)
 {
-	int temp = (*(int *)elementI);
-	(*(int *)elementI) = (*(int *)elementJ);
-	(*(int *)elementJ) = temp;
+	Player temp = (*(Player *)elementI);
+	(*(Player *)elementI) = (*(Player *)elementJ);
+	(*(Player *)elementJ) = temp;
 }
 void PrintArrayInt(void *array, int amountOfElement)
 {
@@ -155,9 +160,12 @@ void PrintArrayInt(void *array, int amountOfElement)
 	// 	PrintElement((Player *)array[i]);
 	// }
 }
-void PrintElement(Player *_player)
+void PrintElement(Player *_player, int amount)
 {
-	printf("\n");
+	for (int i = 0; i < amount; i++)
+	{
+		PrintPlayer(&_player[i]); //! <<- Passivo de erro
+	}
 }
 void SelectionSort(int *array, int n, void (*swap)(const void *, const void *))
 {
@@ -173,6 +181,30 @@ void SelectionSort(int *array, int n, void (*swap)(const void *, const void *))
 		}
 		swap(&array[menor], &array[i]);
 	}
+}
+void GenerateLog(char *name, int comparisons, double time)
+{
+	FILE *toWrite = fopen(name, "w");
+	fprintf(toWrite, "634878\t%f\t%d\n", time, comparisons);
+	fclose(toWrite);
+}
+bool CompareStringBigger(char *first, char *second)
+{
+	return strcmp(first, second) > 1;
+}
+
+bool CompareStringSmaller(char *first, char *second)
+{
+	return strcmp(first, second) < 1;
+}
+bool CompareIntBigger(int first, int second)
+{
+	return first > second;
+}
+
+bool CompareIntSmaller(int first, int second)
+{
+	return first < second;
 }
 
 //endregion

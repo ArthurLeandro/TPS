@@ -285,19 +285,25 @@ class SortingRelatedItems {
 	};
 	/**
 	 * Procedimento para gerar um log, que é chamado ao fim de todas as ordenações.
-	 * @param name Nome do exercicio
+	 * 
+	 * @param name       Nome do exercicio
 	 * @param comparacao número de comparações executada pelo algoritmo
-	 * @param tempo tempo levado para executar o algoritmo
+	 * @param tempo      tempo levado para executar o algoritmo
 	 */
 	OperateOnArrayComplete<String, Integer, Double> GenerateLog = (name, comparacao, tempo) -> {
 		try {
-			FileWriter toWrite = new FileWriter(new File("634878_"+name+".txt")
-	StringBuilder stringBuilder = new StringBuilder();stringBuilder.append("634878\t");stringBuilder.append(tempo);stringBuilder.append("\t");stringBuilder.append(comparacao);toWrite.write(stringBuilder.toString());}catch(
-	Exception e)
-	{
-		System.out.println("Ocorreu um erro ao finalizar o método de ordenação");
-	}};
-
+			FileWriter toWrite = new FileWriter(new File("634878_" + name + ".txt"));
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("634878\t");
+			stringBuilder.append(tempo);
+			stringBuilder.append("\t");
+			stringBuilder.append(comparacao);
+			toWrite.write(stringBuilder.toString());
+			toWrite.close();
+		} catch (Exception e) {
+			System.out.println("Ocorreu um erro ao finalizar o método de ordenação");
+		}
+	};
 
 	// PESQUISA SEQUENCIAL
 	// ORDENAÇÂO SELEçÂO
