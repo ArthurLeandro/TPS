@@ -42,7 +42,7 @@ int main()
 		controller = IsAble(word);
 		if (!controller)
 		{
-			FILE *csvReader = fopen("players.csv", "r");
+			FILE *csvReader = fopen("./temp/players.csv", "r");
 			char buffer[1024];
 			int lineToRead = atoi(word);
 			for (int i = 0; i < lineToRead + 1; i++)
