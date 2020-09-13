@@ -1,22 +1,19 @@
 import java.io.*;
 import java.util.*;
-
-import sun.awt.X11.MotifDnDConstants.Swapper;
-
 import java.time.*;
 
 public class TP2 {
 	public static void main(String[] args) throws Exception {
 		Scanner reader = new Scanner(System.in);
 		Lista list = new Lista(100);
-		int exerciseNumber = 3;
+		int exerciseNumber = 1;
 		String word = "";
 		boolean controller = false;
 		do {
 			word = reader.nextLine();
 			controller = IsAble(word);
 			if (!controller) {
-				Scanner csvReader = new Scanner(new File("players.csv"));
+				Scanner csvReader = new Scanner(new File("tmp/players.csv"));
 				int lineToread = Integer.parseInt(word);
 				String auxWord = "";
 				for (int i = 0; i < lineToread + 2; i++) {
@@ -33,7 +30,8 @@ public class TP2 {
 				}
 			}
 		} while (!controller);
-		Exercise(exerciseNumber, list, reader);
+		if (exerciseNumber > 1)
+			Exercise(exerciseNumber, list, reader);
 		reader.close();
 	}
 
