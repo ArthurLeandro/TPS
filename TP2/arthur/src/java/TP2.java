@@ -13,7 +13,7 @@ public class TP2 {
 			word = reader.nextLine();
 			controller = IsAble(word);
 			if (!controller) {
-				Scanner csvReader = new Scanner(new File("tmp/players.csv"));
+				Scanner csvReader = new Scanner(new File("/tmp/players.csv"));
 				int lineToread = Integer.parseInt(word);
 				String auxWord = "";
 				for (int i = 0; i < lineToread + 2; i++) {
@@ -454,7 +454,6 @@ class Player {
 		stringBuilder.append(getBirthCity());
 		stringBuilder.append(" ## ");
 		stringBuilder.append(getBirthState());
-		stringBuilder.append(" ## ");
 		stringBuilder.append("]");
 		System.out.println(stringBuilder.toString());
 	}
