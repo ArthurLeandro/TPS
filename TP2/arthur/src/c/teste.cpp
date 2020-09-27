@@ -43,17 +43,23 @@ void InsertIntoArray(Player player);
 void InsertByColor(Player *array, int n, int cor, int h);
 void BubbleSort(Player *array, int n);
 void RecursiveSelection(int n, int menor, Player *array, int j);
-void Selection(Player *array, int n);
+void SelectionSort(Player *array, int n);
 bool BinarySearch(Player *array, char *n, int begin, int end);
 void SwapPlayer(int elementI, int elementJ);
 Player Clone(Player aux);
+void RecursiveSelection(Player *array, int n, int index);
+int minIndex(Player a[], int i, int j);
+void CommonSort(Player *array, int n);
+void RadixSort(Player *array, int n);
+void PartialInsertion(Player *array, int n, int k);
+void PartialSortArrayWeigth(Player *array, int size);
 //region <------MAIN------>
 int main()
 {
 	char word[1024];
 	bool controller = false;
 	scanf("%[^\n]%*c", word);
-	int exerciseNumber = 4;
+	int exerciseNumber = 8;
 	if (exerciseNumber > 1)
 	{
 		array = (Player *)malloc(sizeof(Player) * arraySize);
@@ -63,7 +69,7 @@ int main()
 		controller = IsAble(word);
 		if (!controller)
 		{
-			FILE *csvReader = fopen("players.csv", "r");
+			FILE *csvReader = fopen("/tmp/players.csv", "r");
 			char buffer[1024];
 			int lineToRead = atoi(word);
 			for (int i = 0; i < lineToRead + 1; i++)
@@ -236,7 +242,7 @@ void ExerciseNumber(int n)
 {
 	if (n == 4)
 	{ //BINARY SEARCH
-		Selection(array, pointerToLastValidPosition);
+		CommonSort(array, pointerToLastValidPosition);
 		char word[1024];
 		bool controller = false;
 		scanf("%[^\n]%*c", word);
@@ -261,21 +267,40 @@ void ExerciseNumber(int n)
 	{
 		if (n == 6)
 		{
-			Selection(array, pointerToLastValidPosition);
+			//NOME
+			SelectionSort(array, pointerToLastValidPosition);
 		}
 		else if (n == 8)
 		{
+			//WEIGHT
 			Shelsort(array, pointerToLastValidPosition);
+			PartialSortArrayWeigth(array, pointerToLastValidPosition);
 		}
 		else if (n == 10)
 		{
+			//BirthState
 			Quicksort(array, pointerToLastValidPosition);
 		}
 		else if (n == 12)
 		{
+			//BirthYear
 			BubbleSort(array, pointerToLastValidPosition);
 		}
-
+		else if (n == 14)
+		{
+			//ID
+			RadixSort(array, pointerToLastValidPosition);
+		}
+		else if (n == 16)
+		{
+			//BirthYear
+			PartialInsertion(array, pointerToLastValidPosition, 10);
+		}
+		else if (n == 16)
+		{
+			//BirthYear
+			PartialInsertion(array, pointerToLastValidPosition, 10);
+		}
 		for (int i = 0; i < pointerToLastValidPosition; i++)
 		{
 			PrintPlayer(&array[i]);
@@ -359,30 +384,8 @@ bool BinarySearch(Player *array, char *n, int begin, int end)
 	}
 	return found;
 }
-void RecursiveSelection(int n, int menor, Player *array, int j)
+void CommonSort(Player *array, int n)
 {
-	if (j < n)
-	{
-		if (strcmp(array[menor].name, array[j].name) > 0)
-		{
-			menor = j;
-		}
-		RecursiveSelection(n, menor, array, j + 1);
-	}
-}
-void Selection(Player *array, int n)
-{
-	// int i = 0;
-	// int menor = i;
-	// while (i < (n - 1))
-	// {
-	// 	RecursiveSelection(n, menor, array, 0);
-	// 	if (menor != i)
-	// 	{
-	// 		SwapPlayer(menor, i);
-	// 	}
-	// 	i++;
-	// }
 	for (int i = 0; i < (n - 1); i++)
 	{
 		int menor = i;
@@ -395,6 +398,30 @@ void Selection(Player *array, int n)
 		}
 		SwapPlayer(menor, i);
 	}
+}
+void SelectionSort(Player *array, int n)
+{
+	RecursiveSelection(array, n, 0);
+}
+void RecursiveSelection(Player *array, int n, int index)
+{
+	if (index == n)
+		return;
+
+	int k = minIndex(array, index, n - 1);
+
+	if (k != index)
+	{
+		SwapPlayer(k, index);
+	}
+	RecursiveSelection(array, n, index + 1);
+}
+int minIndex(Player a[], int i, int j)
+{
+	if (i == j)
+		return i;
+	int smaller = minIndex(a, i + 1, j);
+	return (strcmp(a[i].name, a[smaller].name) < 0) ? i : smaller;
 }
 void BubbleSort(Player *array, int n)
 {
@@ -415,10 +442,10 @@ void RecursiveQuicksort(Player *array, int left, int right)
 	Player pivo = array[(left + right) / 2];
 	while (i <= j)
 	{
-		while (CompareStringSmaller(array[i].birthState, pivo.birthState))
+		while (strcmp(array[i].birthState, pivo.birthState) < 0)
 			i++;
-		while (CompareStringBigger(array[i].birthState, pivo.birthState))
-			j++;
+		while (strcmp(array[j].birthState, pivo.birthState) > 0)
+			j--;
 		if (i <= j)
 		{
 			SwapPlayer(i, j);
@@ -466,4 +493,165 @@ void Shelsort(Player *array, int n)
 			InsertByColor(array, n, cor, h);
 		}
 	} while (h != 1);
+}
+
+int GetHighestValue(Player *array, int size)
+{
+	int i;
+	int largestNum = -1;
+	for (i = 0; i < size; i++)
+	{
+		if (array[i].id > largestNum)
+			largestNum = array[i].id;
+	}
+
+	return largestNum;
+}
+
+// Radix Sort
+void RadixSort(Player *array, int size)
+{
+	// Base 10 is used
+	int i;
+	int semiSorted[size];
+	int significantDigit = 1;
+	int largestNum = GetHighestValue(array, size);
+	while (largestNum / significantDigit > 0)
+	{
+		int bucket[10] = {0};
+		for (i = 0; i < size; i++)
+			bucket[(array[i].id / significantDigit) % 10]++;
+		for (i = 1; i < 10; i++)
+			bucket[i] += bucket[i - 1];
+		for (i = size - 1; i >= 0; i--)
+			semiSorted[--bucket[(array[i].id / significantDigit) % 10]] = array[i].id;
+		for (i = 0; i < size; i++)
+			array[i].id = semiSorted[i];
+		// Move to next significant digit
+		significantDigit *= 10;
+	}
+}
+
+void PartialInsertion(Player *array, int n, int k)
+{
+	int i, j;
+	for (i = 2; i <= n; i++)
+	{
+		Player x = array[i];
+		if (i > k)
+			j = k;
+		else
+			j = i - 1;
+		array[0] = x; /* sentinela */
+		while (j > 0 && strcmp(x.birthYear, array[j].birthYear) < 0)
+		{
+			array[j + 1] = array[j];
+			j--;
+		}
+		array[j + 1] = x;
+	}
+}
+void PartialSortArrayWeigth(Players *array, int size)
+{
+	int beginOfInterval = 0, endOfInterval = -1;
+	for (int i = 1; i < size; i++)
+	{
+		//POSSIVEL INICIO DE INTERVALO
+		if (array[i].weigth == array[beginOfInterval].weigth)
+		{
+			endOfInterval = i;
+		}
+		else if (array[beginOfInterval].weigth == array[endOfInterval].weigth)
+		{
+
+			//int j = beginOfInterval + 1;
+			///ORDENAÇÂO
+			//	if ((endOfInterval - beginOfInterval) == -1)
+			//{
+			//SwapPlayer(beginOfInterval, endOfInterval);
+			//	}
+			//else
+			//	{
+			for (int i = endOfInterval; i > beginOfInterval; i--)
+			{
+				for (int j = beginOfInterval; j < i; j++)
+				{
+					if (strcmp(array[j].name, array[j + 1].name) > 0)
+					{
+						SwapPlayer(j, j + 1);
+					}
+				}
+			}
+
+			//int i = (beginOfInterval != 0) ? beginOfInterval : 0;
+			//	if (beginOfInterval != endOfInterval)
+			//{
+			//printf("INICIO DA IMPRESSAO DO INTERVALO\n");
+			//for (; i <= endOfInterval; i++)
+			//{
+			//PrintPlayer(&array[i]);
+			//}
+			//printf("\n");
+			//}
+			beginOfInterval = i + 1;
+		}
+		//GUARDA DOS VALORES DO ARRAY
+		//if (array[i].heigth > array[beginOfInterval].heigth || endOfInterval == size - 1)
+		//{
+		//int aux = beginOfInterval - endOfInterval;
+		//if (beginOfInterval < endOfInterval)
+		//{
+		//printf("Precisa de ordenar o intervalo %d\t %d\n\n", beginOfInterval, endOfInterval);
+		//if (aux == -1)
+		//{
+		//SwapPlayer(beginOfInterval, endOfInterval);
+		//	}
+		//else
+		//	{
+		//int value = -1;
+
+		//					for (int i = beginOfInterval; i < endOfInterval; i++)
+		//			{
+		//		for (int j = i; j < (endOfInterval); j++)
+		//	{
+		//	value = strcmp(array[i].name, array[j].name);
+		//if (value > 0)
+		//	{
+		//	SwapPlayer(j, i);
+		//}
+		//}
+		//PrintPlayer(&array[i]);
+		//}
+
+		//					Player temp = array[endOfInterval];
+		//			int auxToShift = -1;
+		//	for (int i = beginOfInterval; i < endOfInterval; i++)
+		//{
+		//if (strcmp(array[i].name, temp.name) > 0)
+		//		{
+		//		auxToShift = i;
+		//	i = endOfInterval;
+		//	}
+		//	}
+		//for (int i = endOfInterval; i > beginOfInterval; i--)
+		//	{
+		//	array[i] = array[i - 1];
+		//	}
+		//array[auxToShift] = temp;
+		//	}
+		//	}
+		//	}
+		//	if ((endOfInterval - beginOfInterval) > 0)
+		//{
+		//	printf("begin = %d\t end = %d\n", beginOfInterval, endOfInterval);
+		//}
+		//if ((endOfInterval - beginOfInterval) > 0)
+		//{
+		//		else
+		//{
+		//	SwapPlayer(beginOfInterval, endOfInterval);
+		//	}
+		//beginOfInterval = i;
+		//	}
+	}
 }

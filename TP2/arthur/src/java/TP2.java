@@ -5,15 +5,15 @@ import java.time.*;
 public class TP2 {
 	public static void main(String[] args) throws Exception {
 		Scanner reader = new Scanner(System.in);
-		Lista list = new Lista(100);
-		int exerciseNumber = 1;
+		Lista list = new Lista(600);
+		int exerciseNumber = 7;
 		String word = "";
 		boolean controller = false;
 		do {
 			word = reader.nextLine();
 			controller = IsAble(word);
 			if (!controller) {
-				Scanner csvReader = new Scanner(new File("/tmp/players.csv"));
+				Scanner csvReader = new Scanner(new File("players.csv"));
 				int lineToread = Integer.parseInt(word);
 				String auxWord = "";
 				for (int i = 0; i < lineToread + 2; i++) {
@@ -23,10 +23,10 @@ public class TP2 {
 				String[] splitted = auxWord.split(",");
 				splitted = FixEntry(splitted);
 				Player aux = new Player(splitted);
-				if (exerciseNumber == 1) {
-					aux.PrintPlayer();
+				if (exerciseNumber > 1) {
+					list.inserirFim(aux);
 				} else {
-					list.inserirFim(new Player(splitted));
+					aux.PrintPlayer();
 				}
 			}
 		} while (!controller);
@@ -61,18 +61,17 @@ public class TP2 {
 	}
 
 	public static void Exercise(int i, Lista list, Scanner reader) {
-		SortingRelatedItems sort = new SortingRelatedItems();
+		SortingRelatedItems sort = new SortingRelatedItems(list.getN());
 		Player[] aux = list.getArray();
 		if (i == 3) {// PESQUISA SEQUENCIAL
 			String word = reader.nextLine();
-			boolean algo = false;
 			while (word.charAt(0) != 'F' && word.charAt(1) != 'I' && word.charAt(2) != 'M') {
-				algo = sort.PesquisaSequencial.Operate(aux, word);
-				if (algo) {
+				if (sort.PesquisaSequencial.Operate(aux, word)) {
 					System.out.println("SIM");
 				} else {
 					System.out.println("NAO");
 				}
+				word = reader.nextLine();
 			}
 		} else {
 			if (i == 5) {// ORDENAÇÂO SELEçÂO
@@ -86,8 +85,8 @@ public class TP2 {
 			} else if (i == 13) {
 				sort.MergeSort(aux, 0, aux.length - 1);
 			}
+			sort.PrintArrayPlayer.Operate(aux, 0);
 		}
-		sort.PrintArrayPlayer.Operate(aux, 0);
 
 		// INSERçÂO
 		// HEapSort
@@ -463,6 +462,14 @@ class Player {
 class SortingRelatedItems {
 	int amountOfComparisons = 0;
 	int amountOfSwaps = 0;
+	int lookForTillWhere = 0;
+
+	public SortingRelatedItems(int n) {
+		setLookForTillWhere(n);
+		setAmountOfComparisons(0);
+		setAmountOfSwaps(0);
+	}
+
 	/**
 	 * Procedimento para efetuar o swap entre dois Player
 	 * 
@@ -483,7 +490,7 @@ class SortingRelatedItems {
 	 * @apiNote first > second
 	 */
 	OperateInArray<String, Boolean> CompareStringBigger = (first, second) -> {
-		return first.compareTo(second) > 1;
+		return first.compareTo(second) > 0;
 	};
 	/**
 	 * @param first  primeira String
@@ -492,7 +499,7 @@ class SortingRelatedItems {
 	 * @apiNote first < second
 	 */
 	OperateInArray<String, Boolean> CompareStringSmaller = (first, second) -> {
-		return first.compareTo(second) < 1;
+		return first.compareTo(second) < 0;
 	};
 	/**
 	 * @param first  primeira int
@@ -519,13 +526,13 @@ class SortingRelatedItems {
 	 * @param start Integer posição inicial
 	 */
 	OperateOnArrayWithAuxiliar<Player, Integer> PrintArrayPlayer = (array, start) -> {
-		for (int i = 0; i < array.length; i++) {
+		for (int i = 0; i < getLookForTillWhere(); i++) {
 			array[i].PrintPlayer();
 		}
 	};
 	OperateOnArrayReturning<Player, Boolean, String> PesquisaSequencial = (array, nome) -> {
 		Boolean valueToReturn = false;
-		for (int i = 0; i < array.length; i++) {
+		for (int i = 0; i < getLookForTillWhere(); i++) {
 			if (array[i].getName().equals(nome)) {
 				valueToReturn = true;
 				i += array.length;
@@ -534,7 +541,7 @@ class SortingRelatedItems {
 		return valueToReturn;
 	};
 	SortWithComparison<Player> Insercao = (array) -> {
-		int n = array.length;
+		int n = getLookForTillWhere();
 		for (int i = 1; i < n; i++) {
 			Player tmp = array[i];
 			int j = i - 1;
@@ -546,9 +553,9 @@ class SortingRelatedItems {
 		}
 	};
 	SortWithComparison<Player> Selecao = (array) -> {
-		for (int i = 0; i < array.length - 1; i++) {
+		for (int i = 0; i < getLookForTillWhere() - 1; i++) {
 			int menor = i;
-			for (int j = (i + 1); j < array.length; j++) {
+			for (int j = (i + 1); j < getLookForTillWhere(); j++) {
 				if (CompareStringBigger.Operate(array[menor].getName(), array[j].getName())) {
 					menor = j;
 				}
@@ -578,7 +585,7 @@ class SortingRelatedItems {
 
 	// HEapSort
 	SortWithComparison<Player> Heapsort = (array) -> {
-		int n = array.length;
+		int n = getLookForTillWhere();
 		// build heap by calling heapify on non leaf elements
 		for (int i = n / 2 - 1; i >= 0; i--)
 			downheapify(array, n, i);
@@ -594,7 +601,7 @@ class SortingRelatedItems {
 	int getMaior(Player[] array) {
 		Player maior = array[0];
 		int valueToReturn = 0;
-		for (int i = 0; i < array.length; i++) {
+		for (int i = 0; i < getLookForTillWhere(); i++) {
 			if (CompareInt.Operate(maior.getHeigth(), array[i].getHeigth())) {
 				valueToReturn = i;
 				maior = array[i];
@@ -605,7 +612,7 @@ class SortingRelatedItems {
 
 	// Counting Sort
 	SortWithComparison<Player> Counting = (array) -> {
-		int n = array.length;
+		int n = getLookForTillWhere();
 		// Array para contar o numero de ocorrencias de cada elemento
 		int[] count = new int[getMaior(array) + 1];
 		Player[] ordenado = new Player[n];
@@ -702,5 +709,29 @@ class SortingRelatedItems {
 			System.out.println("Ocorreu um erro ao finalizar o método de ordenação");
 		}
 	};
+
+	public int getAmountOfComparisons() {
+		return amountOfComparisons;
+	}
+
+	public void setAmountOfComparisons(int amountOfComparisons) {
+		this.amountOfComparisons = amountOfComparisons;
+	}
+
+	public int getAmountOfSwaps() {
+		return amountOfSwaps;
+	}
+
+	public void setAmountOfSwaps(int amountOfSwaps) {
+		this.amountOfSwaps = amountOfSwaps;
+	}
+
+	public int getLookForTillWhere() {
+		return lookForTillWhere;
+	}
+
+	public void setLookForTillWhere(int lookForTillWhere) {
+		this.lookForTillWhere = lookForTillWhere;
+	}
 
 }
