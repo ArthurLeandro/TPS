@@ -6,14 +6,14 @@ public class TP2 {
 	public static void main(String[] args) throws Exception {
 		Scanner reader = new Scanner(System.in);
 		Lista list = new Lista(600);
-		int exerciseNumber = 7;
+		int exerciseNumber = 9;
 		String word = "";
 		boolean controller = false;
 		do {
 			word = reader.nextLine();
 			controller = IsAble(word);
 			if (!controller) {
-				Scanner csvReader = new Scanner(new File("players.csv"));
+				Scanner csvReader = new Scanner(new File("/tmp/players.csv"));
 				int lineToread = Integer.parseInt(word);
 				String auxWord = "";
 				for (int i = 0; i < lineToread + 2; i++) {
@@ -80,6 +80,7 @@ public class TP2 {
 				sort.Insercao.Sort(aux);
 			} else if (i == 9) {
 				sort.Heapsort.Sort(aux);
+				// sort.SortArraySecondary(aux);
 			} else if (i == 11) {
 				sort.Counting.Sort(aux);
 			} else if (i == 13) {
@@ -570,10 +571,10 @@ class SortingRelatedItems {
 		int r = 2 * i + 2;
 
 		// finding the maximum of left and right
-		if (l < n && CompareStringBigger.Operate(arr[l].getName(), arr[largest].getName()))
+		if (l < n && CompareInt.Operate(arr[l].getHeigth(), arr[largest].getHeigth()))
 			largest = l;
 
-		if (r < n && CompareStringBigger.Operate(arr[r].getName(), arr[largest].getName()))
+		if (r < n && CompareInt.Operate(arr[r].getHeigth(), arr[largest].getHeigth()))
 			largest = r;
 
 		// swapping if child >parent
@@ -596,6 +597,8 @@ class SortingRelatedItems {
 			// i is the size of the reduced heap
 			downheapify(array, i, 0);
 		}
+		SortArraySecondary(array, n);
+		// PrintArrayPlayer.Operate(array, 0);
 	};
 
 	int getMaior(Player[] array) {
@@ -709,6 +712,31 @@ class SortingRelatedItems {
 			System.out.println("Ocorreu um erro ao finalizar o método de ordenação");
 		}
 	};
+
+	public void SortArraySecondary(Player[] array, int size) {
+		int beginOfInterval = 0, endOfInterval = 0;
+		for (int i = 1; i < size; i++) {
+			// POSSIVEL INICIO DE INTERVALO
+			if (array[i].getHeigth() == array[beginOfInterval].getHeigth()) {
+				endOfInterval = i;
+			} else if (array[beginOfInterval].getHeigth() == array[endOfInterval].getHeigth()) {
+				// System.out.println("\nBEGIN OF INTERVALL");
+				beginOfInterval = (beginOfInterval != 0) ? beginOfInterval - 1 : 0;
+				// endOfInterval++;
+				if (array[beginOfInterval].getHeigth() == array[endOfInterval].getHeigth()) {
+					for (int k = endOfInterval; k > beginOfInterval; k--) {
+						for (int j = beginOfInterval; j < k; j++) {
+							if (array[j].getName().compareTo(array[j + 1].getName()) > 0) {
+								SwapPlayer.Operate(array, j, j + 1);
+							}
+						}
+					}
+				}
+				beginOfInterval = i + 1;
+			}
+		}
+
+	}
 
 	public int getAmountOfComparisons() {
 		return amountOfComparisons;

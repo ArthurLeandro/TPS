@@ -551,6 +551,7 @@ void PartialInsertion(Player *array, int n, int k)
 		array[j + 1] = x;
 	}
 }
+
 void PartialSortArrayWeigth(Players *array, int size)
 {
 	int beginOfInterval = 0, endOfInterval = -1;
@@ -563,15 +564,6 @@ void PartialSortArrayWeigth(Players *array, int size)
 		}
 		else if (array[beginOfInterval].weigth == array[endOfInterval].weigth)
 		{
-
-			//int j = beginOfInterval + 1;
-			///ORDENAÇÂO
-			//	if ((endOfInterval - beginOfInterval) == -1)
-			//{
-			//SwapPlayer(beginOfInterval, endOfInterval);
-			//	}
-			//else
-			//	{
 			for (int i = endOfInterval; i > beginOfInterval; i--)
 			{
 				for (int j = beginOfInterval; j < i; j++)
@@ -583,75 +575,7 @@ void PartialSortArrayWeigth(Players *array, int size)
 				}
 			}
 
-			//int i = (beginOfInterval != 0) ? beginOfInterval : 0;
-			//	if (beginOfInterval != endOfInterval)
-			//{
-			//printf("INICIO DA IMPRESSAO DO INTERVALO\n");
-			//for (; i <= endOfInterval; i++)
-			//{
-			//PrintPlayer(&array[i]);
-			//}
-			//printf("\n");
-			//}
 			beginOfInterval = i + 1;
 		}
-		//GUARDA DOS VALORES DO ARRAY
-		//if (array[i].heigth > array[beginOfInterval].heigth || endOfInterval == size - 1)
-		//{
-		//int aux = beginOfInterval - endOfInterval;
-		//if (beginOfInterval < endOfInterval)
-		//{
-		//printf("Precisa de ordenar o intervalo %d\t %d\n\n", beginOfInterval, endOfInterval);
-		//if (aux == -1)
-		//{
-		//SwapPlayer(beginOfInterval, endOfInterval);
-		//	}
-		//else
-		//	{
-		//int value = -1;
-
-		//					for (int i = beginOfInterval; i < endOfInterval; i++)
-		//			{
-		//		for (int j = i; j < (endOfInterval); j++)
-		//	{
-		//	value = strcmp(array[i].name, array[j].name);
-		//if (value > 0)
-		//	{
-		//	SwapPlayer(j, i);
-		//}
-		//}
-		//PrintPlayer(&array[i]);
-		//}
-
-		//					Player temp = array[endOfInterval];
-		//			int auxToShift = -1;
-		//	for (int i = beginOfInterval; i < endOfInterval; i++)
-		//{
-		//if (strcmp(array[i].name, temp.name) > 0)
-		//		{
-		//		auxToShift = i;
-		//	i = endOfInterval;
-		//	}
-		//	}
-		//for (int i = endOfInterval; i > beginOfInterval; i--)
-		//	{
-		//	array[i] = array[i - 1];
-		//	}
-		//array[auxToShift] = temp;
-		//	}
-		//	}
-		//	}
-		//	if ((endOfInterval - beginOfInterval) > 0)
-		//{
-		//	printf("begin = %d\t end = %d\n", beginOfInterval, endOfInterval);
-		//}
-		//if ((endOfInterval - beginOfInterval) > 0)
-		//{
-		//		else
-		//{
-		//	SwapPlayer(beginOfInterval, endOfInterval);
-		//	}
-		//beginOfInterval = i;
-		//	}
 	}
 }
