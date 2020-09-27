@@ -6,7 +6,7 @@ public class TP2 {
 	public static void main(String[] args) throws Exception {
 		Scanner reader = new Scanner(System.in);
 		Lista list = new Lista(600);
-		int exerciseNumber = 9;
+		int exerciseNumber = 7;
 		String word = "";
 		boolean controller = false;
 		do {
@@ -74,16 +74,19 @@ public class TP2 {
 				word = reader.nextLine();
 			}
 		} else {
-			if (i == 5) {// ORDENAÇÂO SELEçÂO
+			if (i == 5) {// ORDENAÇÂO SELEçÂO NAME ONLY
 				sort.Selecao.Sort(aux);
 			} else if (i == 7) {
+				// BIRTH YEAR THEN NAME
 				sort.Insercao.Sort(aux);
 			} else if (i == 9) {
+				// HEIGHT THEN NAME
 				sort.Heapsort.Sort(aux);
-				// sort.SortArraySecondary(aux);
 			} else if (i == 11) {
+				// HEIGHT THEN NAME
 				sort.Counting.Sort(aux);
 			} else if (i == 13) {
+				// UNIVERSITY ONLY
 				sort.MergeSort(aux, 0, aux.length - 1);
 			}
 			sort.PrintArrayPlayer.Operate(aux, 0);
@@ -552,6 +555,7 @@ class SortingRelatedItems {
 			}
 			array[j + 1] = tmp;
 		}
+		SortArraySecondaryBirthYear(array, n);
 	};
 	SortWithComparison<Player> Selecao = (array) -> {
 		for (int i = 0; i < getLookForTillWhere() - 1; i++) {
@@ -641,6 +645,7 @@ class SortingRelatedItems {
 		// Copiando para o array original
 		for (int i = 0; i < n; array[i] = ordenado[i], i++)
 			;
+		SortArraySecondary(array, n);
 	};
 
 	// Merge Sort
@@ -713,6 +718,30 @@ class SortingRelatedItems {
 		}
 	};
 
+	public void SortArraySecondaryBirthYear(Player[] array, int size) {
+		int beginOfInterval = 0, endOfInterval = 0;
+		for (int i = 1; i < size; i++) {
+			// POSSIVEL INICIO DE INTERVALO
+			if (array[i].getBirthYear().compareTo(array[beginOfInterval].getBirthYear()) == 0) {
+				endOfInterval = i;
+			} else if (array[beginOfInterval].getBirthState().compareTo(array[endOfInterval].getBirthYear()) == 0) {
+				// System.out.println("\nBEGIN OF INTERVALL");
+				beginOfInterval = (beginOfInterval != 0) ? beginOfInterval - 1 : 0;
+				// endOfInterval++;
+				if (array[beginOfInterval].getHeigth() == array[endOfInterval].getHeigth()) {
+					for (int k = endOfInterval; k > beginOfInterval; k--) {
+						for (int j = beginOfInterval; j < k; j++) {
+							if (array[j].getName().compareTo(array[j + 1].getName()) > 0) {
+								SwapPlayer.Operate(array, j, j + 1);
+							}
+						}
+					}
+				}
+				beginOfInterval = i + 1;
+			}
+		}
+	}
+
 	public void SortArraySecondary(Player[] array, int size) {
 		int beginOfInterval = 0, endOfInterval = 0;
 		for (int i = 1; i < size; i++) {
@@ -735,7 +764,6 @@ class SortingRelatedItems {
 				beginOfInterval = i + 1;
 			}
 		}
-
 	}
 
 	public int getAmountOfComparisons() {

@@ -52,6 +52,8 @@ int minIndex(Player a[], int i, int j);
 void CommonSort(Player *array, int n);
 void RadixSort(Player *array, int n);
 void PartialInsertion(Player *array, int n, int k);
+void PartialSortArrayBirthState(Player *array, int size);
+void PartialSortArrayBirthYear(Player *array, int size);
 void PartialSortArrayWeigth(Player *array, int size);
 //region <------MAIN------>
 int main()
@@ -59,7 +61,7 @@ int main()
 	char word[1024];
 	bool controller = false;
 	scanf("%[^\n]%*c", word);
-	int exerciseNumber = 8;
+	int exerciseNumber = 12;
 	if (exerciseNumber > 1)
 	{
 		array = (Player *)malloc(sizeof(Player) * arraySize);
@@ -267,24 +269,26 @@ void ExerciseNumber(int n)
 	{
 		if (n == 6)
 		{
-			//NOME
+			//NOME ONLY
 			SelectionSort(array, pointerToLastValidPosition);
 		}
 		else if (n == 8)
 		{
-			//WEIGHT
+			//WEIGHT THEN NAME
 			Shelsort(array, pointerToLastValidPosition);
 			PartialSortArrayWeigth(array, pointerToLastValidPosition);
 		}
 		else if (n == 10)
 		{
-			//BirthState
+			//BirthState THEN NAME
 			Quicksort(array, pointerToLastValidPosition);
+			PartialSortArrayBirthState(array, pointerToLastValidPosition);
 		}
 		else if (n == 12)
 		{
-			//BirthYear
+			//BirthYear THEN NAME
 			BubbleSort(array, pointerToLastValidPosition);
+			PartialSortArrayBirthYear(array, pointerToLastValidPosition);
 		}
 		else if (n == 14)
 		{
@@ -493,6 +497,7 @@ void Shelsort(Player *array, int n)
 			InsertByColor(array, n, cor, h);
 		}
 	} while (h != 1);
+	PartialSortArrayWeigth(array, n);
 }
 
 int GetHighestValue(Player *array, int size)
@@ -552,6 +557,60 @@ void PartialInsertion(Player *array, int n, int k)
 	}
 }
 
+void PartialSortArrayBirthState(Players *array, int size)
+{
+	int beginOfInterval = 0, endOfInterval = -1;
+	for (int i = 1; i < size; i++)
+	{
+		//POSSIVEL INICIO DE INTERVALO
+		if (strcmp(array[i].birthState, array[beginOfInterval].birthState) == 0)
+		{
+			endOfInterval = i;
+		}
+		else if (strcmp(array[beginOfInterval].birthState, array[endOfInterval].birthState) == 0)
+		{
+			for (int i = endOfInterval; i > beginOfInterval; i--)
+			{
+				for (int j = beginOfInterval; j < i; j++)
+				{
+					if (strcmp(array[j].name, array[j + 1].name) > 0)
+					{
+						SwapPlayer(j, j + 1);
+					}
+				}
+			}
+
+			beginOfInterval = i + 1;
+		}
+	}
+}
+void PartialSortArrayBirthYear(Players *array, int size)
+{
+	int beginOfInterval = 0, endOfInterval = -1;
+	for (int i = 1; i < size; i++)
+	{
+		//POSSIVEL INICIO DE INTERVALO
+		if ((array[i].birthYear, array[beginOfInterval].birthYear) == 0)
+		{
+			endOfInterval = i;
+		}
+		else if (strcmp(array[beginOfInterval].birthYear, array[endOfInterval].birthYear) == 0)
+		{
+			for (int i = endOfInterval; i > beginOfInterval; i--)
+			{
+				for (int j = beginOfInterval; j < i; j++)
+				{
+					if (strcmp(array[j].name, array[j + 1].name) > 0)
+					{
+						SwapPlayer(j, j + 1);
+					}
+				}
+			}
+
+			beginOfInterval = i + 1;
+		}
+	}
+}
 void PartialSortArrayWeigth(Players *array, int size)
 {
 	int beginOfInterval = 0, endOfInterval = -1;
@@ -574,7 +633,6 @@ void PartialSortArrayWeigth(Players *array, int size)
 					}
 				}
 			}
-
 			beginOfInterval = i + 1;
 		}
 	}
