@@ -288,7 +288,7 @@ void ExerciseNumber(int n)
 		{
 			//BirthYear THEN NAME
 			BubbleSort(array, pointerToLastValidPosition);
-			PartialSortArrayBirthYear(array, pointerToLastValidPosition);
+			//PartialSortArrayBirthYear(array, pointerToLastValidPosition);
 		}
 		else if (n == 14)
 		{
@@ -437,6 +437,10 @@ void BubbleSort(Player *array, int n)
 			{
 				SwapPlayer(j, (j + 1));
 			}
+			if ((strcmp(array[j].birthYear, array[j + 1].birthYear) == 0) && strcmp(array[j].name, array[j + 1].name) > 0)
+			{
+				SwapPlayer(j, j + 1);
+			}
 		}
 	}
 }
@@ -581,6 +585,7 @@ void PartialSortArrayBirthState(Players *array, int size)
 			}
 
 			beginOfInterval = i + 1;
+			printf("%d\n", beginOfInterval);
 		}
 	}
 }
