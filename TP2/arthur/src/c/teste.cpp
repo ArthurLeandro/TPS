@@ -19,7 +19,9 @@ typedef struct Players
 } Player;
 Player *array;
 int pointerToLastValidPosition = 0;
-int arraySize = 600;
+int arraySize = 1000;
+int MOVEMENTS = 0;
+int COMPARISONS = 0;
 
 // <------------ METHODS DECLARATIONS -------------------->
 void PrintElement(Player *_player, int amount);
@@ -30,7 +32,7 @@ Player GetPlayerFromFile(char *word);
 void PlayerSet(int checker, Player *player, char *valueToSet);
 void PrintPlayer(Player *);
 char *Replace(char const *const original, char const *const pattern, char const *const replacement);
-void GenerateLog(char *name, int comparisons, double time);
+void GenerateLog(char *name, double time);
 bool CompareStringBigger(char *first, char *second);
 bool CompareStringSmaller(char *first, char *second);
 bool CompareIntBigger(int first, int second);
@@ -61,7 +63,7 @@ int main()
 	char word[1024];
 	bool controller = false;
 	scanf("%[^\n]%*c", word);
-	int exerciseNumber = 12;
+	int exerciseNumber = 4;
 	if (exerciseNumber > 1)
 	{
 		array = (Player *)malloc(sizeof(Player) * arraySize);
@@ -242,12 +244,16 @@ char *Replace(char const *const original, char const *const pattern, char const 
 }
 void ExerciseNumber(int n)
 {
+	char name[45];
+	double begin = 0;
 	if (n == 4)
 	{ //BINARY SEARCH
 		CommonSort(array, pointerToLastValidPosition);
 		char word[1024];
 		bool controller = false;
+		begin = clock();
 		scanf("%[^\n]%*c", word);
+		printf("NAO\n");
 		do
 		{
 			controller = IsAble(word);
@@ -264,6 +270,8 @@ void ExerciseNumber(int n)
 			}
 			scanf("%[^\n]%*c", word);
 		} while (!controller);
+		begin = clock() - begin;
+		strcpy(name, "634878_binaria");
 	}
 	else
 	{
@@ -271,29 +279,34 @@ void ExerciseNumber(int n)
 		{
 			//NOME ONLY
 			SelectionSort(array, pointerToLastValidPosition);
+			strcpy(name, "634878_selecao_recursiva");
 		}
 		else if (n == 8)
 		{
 			//WEIGHT THEN NAME
 			Shelsort(array, pointerToLastValidPosition);
 			PartialSortArrayWeigth(array, pointerToLastValidPosition);
+			strcpy(name, "634878_shellsort");
 		}
 		else if (n == 10)
 		{
 			//BirthState THEN NAME
 			Quicksort(array, pointerToLastValidPosition);
 			PartialSortArrayBirthState(array, pointerToLastValidPosition);
+			strcpy(name, "634878_quicksort");
 		}
 		else if (n == 12)
 		{
 			//BirthYear THEN NAME
 			BubbleSort(array, pointerToLastValidPosition);
 			//PartialSortArrayBirthYear(array, pointerToLastValidPosition);
+			strcpy(name, "634878_bolha");
 		}
 		else if (n == 14)
 		{
 			//ID
 			RadixSort(array, pointerToLastValidPosition);
+			strcpy(name, "634878_radix");
 		}
 		else if (n == 16)
 		{
@@ -309,6 +322,7 @@ void ExerciseNumber(int n)
 		{
 			PrintPlayer(&array[i]);
 		}
+		GenerateLog(name, (begin));
 	}
 }
 void SwapPlayer(int elementI, int elementJ)
@@ -317,10 +331,11 @@ void SwapPlayer(int elementI, int elementJ)
 	array[elementI] = array[elementJ];
 	array[elementJ] = temp;
 }
-void GenerateLog(char *name, int comparisons, double time)
+void GenerateLog(char *name, double time)
 {
+	MOVEMENTS *= 3;
 	FILE *toWrite = fopen(name, "w");
-	fprintf(toWrite, "634878\t%f\t%d\n", time, comparisons);
+	fprintf(toWrite, "634878\t%f\t%d\t%d\n", time, COMPARISONS, MOVEMENTS);
 	fclose(toWrite);
 }
 Player Clone(Player aux)
@@ -372,6 +387,7 @@ bool BinarySearch(Player *array, char *n, int begin, int end)
 	{
 		middle = (begin + end) / 2;
 		int cache = strcmp(n, array[middle].name);
+		COMPARISONS++;
 		if (cache == 0)
 		{
 			found = true;
@@ -433,12 +449,15 @@ void BubbleSort(Player *array, int n)
 	{
 		for (int j = 0; j < i; j++)
 		{
+			COMPARISONS += 2;
 			if (strcmp(array[j].birthYear, array[j + 1].birthYear) > 0)
 			{
 				SwapPlayer(j, (j + 1));
+				MOVEMENTS++;
 			}
 			if ((strcmp(array[j].birthYear, array[j + 1].birthYear) == 0) && strcmp(array[j].name, array[j + 1].name) > 0)
 			{
+				MOVEMENTS++;
 				SwapPlayer(j, j + 1);
 			}
 		}
@@ -451,11 +470,18 @@ void RecursiveQuicksort(Player *array, int left, int right)
 	while (i <= j)
 	{
 		while (strcmp(array[i].birthState, pivo.birthState) < 0)
+		{
+			COMPARISONS++;
 			i++;
+		}
 		while (strcmp(array[j].birthState, pivo.birthState) > 0)
+		{
+			COMPARISONS++;
 			j--;
+		}
 		if (i <= j)
 		{
+			MOVEMENTS++;
 			SwapPlayer(i, j);
 			i++;
 			j--;
@@ -480,9 +506,11 @@ void InsertByColor(Player *array, int n, int cor, int h)
 		int tmpCache = tmp.weigth;
 		while ((j >= 0) && (CompareIntBigger(array[j].weigth, tmpCache)))
 		{
+			COMPARISONS++;
 			array[j + h] = array[j];
 			j -= h;
 		}
+		MOVEMENTS++;
 		array[j + h] = tmp;
 	}
 }
@@ -501,7 +529,6 @@ void Shelsort(Player *array, int n)
 			InsertByColor(array, n, cor, h);
 		}
 	} while (h != 1);
-	PartialSortArrayWeigth(array, n);
 }
 
 int GetHighestValue(Player *array, int size)
@@ -522,7 +549,7 @@ void RadixSort(Player *array, int size)
 {
 	// Base 10 is used
 	int i;
-	int semiSorted[size];
+	Player semiSorted[size];
 	int significantDigit = 1;
 	int largestNum = GetHighestValue(array, size);
 	while (largestNum / significantDigit > 0)
@@ -533,9 +560,10 @@ void RadixSort(Player *array, int size)
 		for (i = 1; i < 10; i++)
 			bucket[i] += bucket[i - 1];
 		for (i = size - 1; i >= 0; i--)
-			semiSorted[--bucket[(array[i].id / significantDigit) % 10]] = array[i].id;
+			semiSorted[--bucket[(array[i].id / significantDigit) % 10]] = array[i];
 		for (i = 0; i < size; i++)
-			array[i].id = semiSorted[i];
+			array[i] = semiSorted[i];
+		MOVEMENTS++;
 		// Move to next significant digit
 		significantDigit *= 10;
 	}
@@ -585,7 +613,6 @@ void PartialSortArrayBirthState(Players *array, int size)
 			}
 
 			beginOfInterval = i + 1;
-			printf("%d\n", beginOfInterval);
 		}
 	}
 }

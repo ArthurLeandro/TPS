@@ -6,7 +6,7 @@ public class TP2 {
 	public static void main(String[] args) throws Exception {
 		Scanner reader = new Scanner(System.in);
 		Lista list = new Lista(600);
-		int exerciseNumber = 7;
+		int exerciseNumber = 13;
 		String word = "";
 		boolean controller = false;
 		do {
@@ -63,9 +63,12 @@ public class TP2 {
 	public static void Exercise(int i, Lista list, Scanner reader) {
 		SortingRelatedItems sort = new SortingRelatedItems(list.getN());
 		Player[] aux = list.getArray();
+		String name = "";
+		double end = 0, timeElapsed = 0;
 		if (i == 3) {// PESQUISA SEQUENCIAL
 			String word = reader.nextLine();
-			while (word.charAt(0) != 'F' && word.charAt(1) != 'I' && word.charAt(2) != 'M') {
+			timeElapsed = System.currentTimeMillis();
+			while (!(word.charAt(0) == 'F' && word.charAt(1) == 'I' && word.charAt(2) == 'M')) {
 				if (sort.PesquisaSequencial.Operate(aux, word)) {
 					System.out.println("SIM");
 				} else {
@@ -73,23 +76,41 @@ public class TP2 {
 				}
 				word = reader.nextLine();
 			}
+			end = System.currentTimeMillis();
+			name = "binaria";
 		} else {
 			if (i == 5) {// ORDENAÇÂO SELEçÂO NAME ONLY
+				timeElapsed = System.currentTimeMillis();
 				sort.Selecao.Sort(aux);
+				name = "selecao";
+				end = System.currentTimeMillis();
 			} else if (i == 7) {
 				// BIRTH YEAR THEN NAME
+				timeElapsed = System.currentTimeMillis();
 				sort.Insercao.Sort(aux);
+				name = "insercao";
+				end = System.currentTimeMillis();
 			} else if (i == 9) {
 				// HEIGHT THEN NAME
+				timeElapsed = System.currentTimeMillis();
 				sort.Heapsort.Sort(aux);
+				name = "heapsort";
+				end = System.currentTimeMillis();
 			} else if (i == 11) {
 				// HEIGHT THEN NAME
+				timeElapsed = System.currentTimeMillis();
 				sort.Counting.Sort(aux);
+				name = "counting";
+				end = System.currentTimeMillis();
 			} else if (i == 13) {
 				// UNIVERSITY ONLY
-				sort.MergeSort(aux, 0, aux.length - 1);
+				timeElapsed = System.currentTimeMillis();
+				sort.MergeSort(aux, list.getN() - 1);
+				name = "merge";
+				end = System.currentTimeMillis();
 			}
 			sort.PrintArrayPlayer.Operate(aux, 0);
+			sort.GenerateLog.Operate(name, 0, (end - timeElapsed) / 1000);
 		}
 
 		// INSERçÂO
@@ -487,6 +508,7 @@ class SortingRelatedItems {
 		array[elementJ] = temp;
 		amountOfSwaps++;
 	};
+
 	/**
 	 * @param first  primeira String
 	 * @param second segunda String
@@ -496,6 +518,7 @@ class SortingRelatedItems {
 	OperateInArray<String, Boolean> CompareStringBigger = (first, second) -> {
 		return first.compareTo(second) > 0;
 	};
+
 	/**
 	 * @param first  primeira String
 	 * @param second segunda String
@@ -505,6 +528,7 @@ class SortingRelatedItems {
 	OperateInArray<String, Boolean> CompareStringSmaller = (first, second) -> {
 		return first.compareTo(second) < 0;
 	};
+
 	/**
 	 * @param first  primeira int
 	 * @param second segunda int
@@ -514,6 +538,7 @@ class SortingRelatedItems {
 	OperateInArray<Integer, Boolean> CompareInt = (first, second) -> {
 		return (int) first > (int) second;
 	};
+
 	/**
 	 * @param first  primeira int
 	 * @param second segunda int
@@ -523,6 +548,7 @@ class SortingRelatedItems {
 	OperateInArray<Integer, Boolean> CompareLesserInt = (first, second) -> {
 		return (int) first < (int) second;
 	};
+
 	/**
 	 * Printa os elementos do array.
 	 * 
@@ -534,6 +560,7 @@ class SortingRelatedItems {
 			array[i].PrintPlayer();
 		}
 	};
+
 	OperateOnArrayReturning<Player, Boolean, String> PesquisaSequencial = (array, nome) -> {
 		Boolean valueToReturn = false;
 		for (int i = 0; i < getLookForTillWhere(); i++) {
@@ -541,30 +568,37 @@ class SortingRelatedItems {
 				valueToReturn = true;
 				i += array.length;
 			}
+			amountOfComparisons++;
 		}
 		return valueToReturn;
 	};
+
 	SortWithComparison<Player> Insercao = (array) -> {
 		int n = getLookForTillWhere();
 		for (int i = 1; i < n; i++) {
 			Player tmp = array[i];
 			int j = i - 1;
 			while ((j >= 0) && (CompareStringBigger.Operate(array[j].getBirthYear(), tmp.getBirthYear()))) {
+				amountOfComparisons++;
 				array[j + 1] = array[j];
 				j--;
 			}
+			amountOfSwaps++;
 			array[j + 1] = tmp;
 		}
 		SortArraySecondaryBirthYear(array, n);
 	};
+
 	SortWithComparison<Player> Selecao = (array) -> {
 		for (int i = 0; i < getLookForTillWhere() - 1; i++) {
 			int menor = i;
 			for (int j = (i + 1); j < getLookForTillWhere(); j++) {
 				if (CompareStringBigger.Operate(array[menor].getName(), array[j].getName())) {
+					amountOfComparisons++;
 					menor = j;
 				}
 			}
+			amountOfSwaps++;
 			SwapPlayer.Operate(array, menor, i);
 		}
 	};
@@ -575,11 +609,15 @@ class SortingRelatedItems {
 		int r = 2 * i + 2;
 
 		// finding the maximum of left and right
-		if (l < n && CompareInt.Operate(arr[l].getHeigth(), arr[largest].getHeigth()))
+		if (l < n && CompareInt.Operate(arr[l].getHeigth(), arr[largest].getHeigth())) {
+			amountOfComparisons++;
 			largest = l;
+		}
 
-		if (r < n && CompareInt.Operate(arr[r].getHeigth(), arr[largest].getHeigth()))
+		if (r < n && CompareInt.Operate(arr[r].getHeigth(), arr[largest].getHeigth())) {
 			largest = r;
+			amountOfComparisons++;
+		}
 
 		// swapping if child >parent
 		if (largest != i) {
@@ -598,6 +636,7 @@ class SortingRelatedItems {
 		for (int i = n - 1; i > 0; i--) {
 			// swap the last element with root
 			SwapPlayer.Operate(array, 0, i);
+			amountOfSwaps++;
 			// i is the size of the reduced heap
 			downheapify(array, i, 0);
 		}
@@ -609,7 +648,7 @@ class SortingRelatedItems {
 		Player maior = array[0];
 		int valueToReturn = 0;
 		for (int i = 0; i < getLookForTillWhere(); i++) {
-			if (CompareInt.Operate(maior.getHeigth(), array[i].getHeigth())) {
+			if (CompareLesserInt.Operate(maior.getHeigth(), array[i].getHeigth())) {
 				valueToReturn = i;
 				maior = array[i];
 			}
@@ -621,7 +660,7 @@ class SortingRelatedItems {
 	SortWithComparison<Player> Counting = (array) -> {
 		int n = getLookForTillWhere();
 		// Array para contar o numero de ocorrencias de cada elemento
-		int[] count = new int[getMaior(array) + 1];
+		int[] count = new int[250];
 		Player[] ordenado = new Player[n];
 
 		// Inicializar cada posicao do array de contagem
@@ -631,6 +670,7 @@ class SortingRelatedItems {
 		// Agora, o count[i] contem o numero de elemento iguais a i
 		for (int i = 0; i < n; i++) {
 			count[array[i].getHeigth()]++;
+			amountOfComparisons++;
 		}
 
 		// Agora, o count[i] contem o numero de elemento menores ou iguais a i
@@ -643,8 +683,9 @@ class SortingRelatedItems {
 			;
 
 		// Copiando para o array original
-		for (int i = 0; i < n; array[i] = ordenado[i], i++)
-			;
+		for (int i = 0; i < n; array[i] = ordenado[i], i++) {
+			amountOfSwaps++;
+		}
 		SortArraySecondary(array, n);
 	};
 
@@ -661,33 +702,44 @@ class SortingRelatedItems {
 		int i = 0, j = 0;
 		int k = beg;
 		while (i < l && j < r) {
-			if (CompareStringSmaller.Operate(LeftArray[i].getUniversity(), RightArray[j].getUniversity())) {
+			if ((LeftArray[i].getUniversity().compareTo(RightArray[j].getUniversity())) < 0) {
+				amountOfComparisons++;
 				arr[k] = LeftArray[i];
 				i++;
+				amountOfSwaps++;
 			} else {
+				amountOfSwaps++;
 				arr[k] = RightArray[j];
 				j++;
 			}
 			k++;
 		}
 		while (i < l) {
+			amountOfSwaps++;
 			arr[k] = LeftArray[i];
 			i++;
 			k++;
 		}
 
 		while (j < r) {
+			amountOfSwaps++;
 			arr[k] = RightArray[j];
 			j++;
 			k++;
 		}
 	}
 
-	void MergeSort(Player[] array, Integer beg, Integer end) {
+	void MergeSort(Player[] array, int size) {
+		MergeSortRecursive(array, 0, size);
+		SortArraySecondaryUniversity(array, size);
+	}
+
+	void MergeSortRecursive(Player[] array, Integer beg, Integer end) {
+		amountOfComparisons = amountOfSwaps = 0;
 		if (beg < end) {
 			Integer mid = (beg + end) / 2;
-			MergeSort(array, beg, mid);
-			MergeSort(array, mid + 1, end);
+			MergeSortRecursive(array, beg, mid);
+			MergeSortRecursive(array, mid + 1, end);
 			merge(array, beg, mid, end);
 		}
 	}
@@ -703,14 +755,16 @@ class SortingRelatedItems {
 	 * @param comparacao número de comparações executada pelo algoritmo
 	 * @param tempo      tempo levado para executar o algoritmo
 	 */
-	OperateOnArrayComplete<String, Integer, Double> GenerateLog = (name, comparacao, tempo) -> {
+	OperateOnArrayComplete<String, Integer, Double> GenerateLog = (name, something, tempo) -> {
 		try {
 			FileWriter toWrite = new FileWriter(new File("634878_" + name + ".txt"));
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append("634878\t");
 			stringBuilder.append(tempo);
 			stringBuilder.append("\t");
-			stringBuilder.append(comparacao);
+			stringBuilder.append((amountOfComparisons * 3));
+			stringBuilder.append("\t");
+			stringBuilder.append(amountOfSwaps);
 			toWrite.write(stringBuilder.toString());
 			toWrite.close();
 		} catch (Exception e) {
@@ -718,13 +772,13 @@ class SortingRelatedItems {
 		}
 	};
 
-	public void SortArraySecondaryBirthYear(Player[] array, int size) {
+	public void SortArraySecondary(Player[] array, int size) {
 		int beginOfInterval = 0, endOfInterval = 0;
 		for (int i = 1; i < size; i++) {
 			// POSSIVEL INICIO DE INTERVALO
-			if (array[i].getBirthYear().compareTo(array[beginOfInterval].getBirthYear()) == 0) {
+			if (array[i].getHeigth() == array[beginOfInterval].getHeigth()) {
 				endOfInterval = i;
-			} else if (array[beginOfInterval].getBirthState().compareTo(array[endOfInterval].getBirthYear()) == 0) {
+			} else if (array[beginOfInterval].getHeigth() == array[endOfInterval].getHeigth()) {
 				// System.out.println("\nBEGIN OF INTERVALL");
 				beginOfInterval = (beginOfInterval != 0) ? beginOfInterval - 1 : 0;
 				// endOfInterval++;
@@ -742,17 +796,54 @@ class SortingRelatedItems {
 		}
 	}
 
-	public void SortArraySecondary(Player[] array, int size) {
+	public void SortArraySecondaryUniversity(Player[] array, int size) {
+		int beginOfInterval = 0, endOfInterval = 0;
+		int notInformedPos = 0;
+		for (int i = 1; i < size; i++) {
+			if (array[i].getUniversity().equals("nao informado") && notInformedPos == 0)
+				notInformedPos = i;
+			// POSSIVEL INICIO DE INTERVALO
+			if (array[i].getUniversity().equals(array[beginOfInterval].getUniversity())) {
+				endOfInterval = i;
+			} else if (array[beginOfInterval].getUniversity().equals(array[endOfInterval].getUniversity())) {
+				// System.out.println("\nBEGIN OF INTERVALL");
+				beginOfInterval = (beginOfInterval != 0) ? beginOfInterval - 1 : 0;
+				endOfInterval++;
+				if ((array[beginOfInterval].getUniversity().equals(array[endOfInterval].getUniversity()))) {
+
+					for (int k = endOfInterval; k > beginOfInterval; k--) {
+						for (int j = beginOfInterval; j < k; j++) {
+							if (array[j].getName().compareTo(array[j + 1].getName()) > 0) {
+								SwapPlayer.Operate(array, j, j + 1);
+							}
+						}
+					}
+				}
+				beginOfInterval = i + 1;
+			}
+		}
+		for (int l = size; l > notInformedPos; l--) {
+			for (int w = notInformedPos; w < l; w++) {
+				if (array[w].getName().compareTo(array[w + 1].getName()) > 0) {
+					SwapPlayer.Operate(array, w, w + 1);
+				}
+			}
+		}
+	}
+
+	public void SortArraySecondaryBirthYear(Player[] array, int size) {
 		int beginOfInterval = 0, endOfInterval = 0;
 		for (int i = 1; i < size; i++) {
 			// POSSIVEL INICIO DE INTERVALO
-			if (array[i].getHeigth() == array[beginOfInterval].getHeigth()) {
+			if (Integer.parseInt(array[i].getBirthYear()) == Integer.parseInt(array[beginOfInterval].getBirthYear())) {
 				endOfInterval = i;
-			} else if (array[beginOfInterval].getHeigth() == array[endOfInterval].getHeigth()) {
+			} else if (Integer.parseInt(array[beginOfInterval].getBirthYear()) == Integer
+					.parseInt(array[endOfInterval].getBirthYear())) {
 				// System.out.println("\nBEGIN OF INTERVALL");
 				beginOfInterval = (beginOfInterval != 0) ? beginOfInterval - 1 : 0;
 				// endOfInterval++;
-				if (array[beginOfInterval].getHeigth() == array[endOfInterval].getHeigth()) {
+				if (Integer.parseInt(array[beginOfInterval].getBirthYear()) == Integer
+						.parseInt(array[endOfInterval].getBirthYear())) {
 					for (int k = endOfInterval; k > beginOfInterval; k--) {
 						for (int j = beginOfInterval; j < k; j++) {
 							if (array[j].getName().compareTo(array[j + 1].getName()) > 0) {
