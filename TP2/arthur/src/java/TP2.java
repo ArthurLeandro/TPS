@@ -6,7 +6,7 @@ public class TP2 {
 	public static void main(String[] args) throws Exception {
 		Scanner reader = new Scanner(System.in);
 		Lista list = new Lista(600);
-		int exerciseNumber = 13;
+		int exerciseNumber = 18;
 		String word = "";
 		boolean controller = false;
 		do {
@@ -65,6 +65,7 @@ public class TP2 {
 		Player[] aux = list.getArray();
 		String name = "";
 		double end = 0, timeElapsed = 0;
+		boolean partial = false;
 		if (i == 3) {// PESQUISA SEQUENCIAL
 			String word = reader.nextLine();
 			timeElapsed = System.currentTimeMillis();
@@ -108,8 +109,38 @@ public class TP2 {
 				sort.MergeSort(aux, list.getN() - 1);
 				name = "merge";
 				end = System.currentTimeMillis();
+			} else if (i == 15) {
+				name = "selecao_parcial";
+				partial = true;
+				timeElapsed = System.currentTimeMillis();
+				sort.Selecao.Sort(aux);
+				name = "selecao";
+				end = System.currentTimeMillis();
+
+			} else if (i == 18) {
+				partial = true;
+				timeElapsed = System.currentTimeMillis();
+				sort.QuicksortCaller(aux);
+				end = System.currentTimeMillis();
+				name = "quicksort_parcial";
+				int begin = 0;
+				for (int a = 100; a > begin; a--) {
+					for (int z = begin; z < a; z++) {
+						if (aux[z].getName().compareTo(aux[z + 1].getName()) > 0
+								&& (aux[z].getBirthState().compareTo(aux[z + 1].getBirthState()) == 0)) {
+							sort.SwapPlayer.Operate(aux, z, z + 1);
+						}
+					}
+				}
 			}
-			sort.PrintArrayPlayer.Operate(aux, 0);
+			if (!partial)
+				sort.PrintArrayPlayer.Operate(aux, 0);
+			else {
+				for (int a = 0; a < 10; a++) {
+					aux[a].PrintPlayer();
+				}
+			}
+
 			sort.GenerateLog.Operate(name, 0, (end - timeElapsed) / 1000);
 		}
 
@@ -629,19 +660,14 @@ class SortingRelatedItems {
 	// HEapSort
 	SortWithComparison<Player> Heapsort = (array) -> {
 		int n = getLookForTillWhere();
-		// build heap by calling heapify on non leaf elements
 		for (int i = n / 2 - 1; i >= 0; i--)
 			downheapify(array, n, i);
-		// extract elements from the root and call healpify
 		for (int i = n - 1; i > 0; i--) {
-			// swap the last element with root
 			SwapPlayer.Operate(array, 0, i);
 			amountOfSwaps++;
-			// i is the size of the reduced heap
 			downheapify(array, i, 0);
 		}
 		SortArraySecondary(array, n);
-		// PrintArrayPlayer.Operate(array, 0);
 	};
 
 	int getMaior(Player[] array) {
@@ -702,7 +728,9 @@ class SortingRelatedItems {
 		int i = 0, j = 0;
 		int k = beg;
 		while (i < l && j < r) {
-			if ((LeftArray[i].getUniversity().compareTo(RightArray[j].getUniversity())) < 0) {
+			if (LeftArray[i].getUniversity().compareTo(RightArray[j].getUniversity()) <= 0
+					// || LeftArray[i].getUniversity().compareTo(RightArray[j].getUniversity()) == 0
+					&& LeftArray[i].getName().compareTo(RightArray[j].getName()) > 0) {
 				amountOfComparisons++;
 				arr[k] = LeftArray[i];
 				i++;
@@ -731,7 +759,7 @@ class SortingRelatedItems {
 
 	void MergeSort(Player[] array, int size) {
 		MergeSortRecursive(array, 0, size);
-		SortArraySecondaryUniversity(array, size);
+		// SortArraySecondaryUniversity(array, size);
 	}
 
 	void MergeSortRecursive(Player[] array, Integer beg, Integer end) {
@@ -744,9 +772,32 @@ class SortingRelatedItems {
 		}
 	}
 
-	// Ordenação parcial selecao
+	// Ordenação parcial selecao nome
 
-	// quicksort parcial
+	// quicksort parcial estado de nascimento -> name
+	public void QuicksortCaller(Player[] array) {
+		QuickSort(0, getLookForTillWhere() - 1, array);
+	}
+
+	public void QuickSort(int esq, int dir, Player[] array) {
+		int i = esq, j = dir;
+		Player pivo = array[(dir + esq) / 2];
+		while (i <= j) {
+			while (CompareStringSmaller.Operate(array[i].getBirthState(), pivo.getBirthState()))
+				i++;
+			while (CompareStringBigger.Operate(array[j].getBirthState(), pivo.getBirthState()))
+				j--;
+			if (i <= j) {
+				SwapPlayer.Operate(array, i, j);
+				i++;
+				j--;
+			}
+		}
+		if (esq < j)
+			QuickSort(esq, j, array);
+		if (i < dir)
+			QuickSort(i, dir, array);
+	}
 
 	/**
 	 * Procedimento para gerar um log, que é chamado ao fim de todas as ordenações.
