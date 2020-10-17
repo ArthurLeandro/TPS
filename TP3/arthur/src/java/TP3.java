@@ -188,7 +188,7 @@ class Player {
 }
 
 class Lista {
-  private int[] array;
+  private Player[] array;
   private int n;
 
   /**
@@ -204,7 +204,7 @@ class Lista {
    * @param tamanho Tamanho da lista.
    */
   public Lista(int tamanho) {
-    array = new int[tamanho];
+    array = new Player[tamanho];
     n = 0;
   }
 
@@ -215,12 +215,7 @@ class Lista {
    * @param x int elemento a ser inserido.
    * @throws Exception Se a lista estiver cheia.
    */
-  public void inserirInicio(int x) throws Exception {
-
-    // validar insercao
-    if (n >= array.length) {
-      throw new Exception("Erro ao inserir!");
-    }
+  public void inserirInicio(Player x) {
 
     // levar elementos para o fim do array
     for (int i = n; i > 0; i--) {
@@ -237,13 +232,7 @@ class Lista {
    * @param x int elemento a ser inserido.
    * @throws Exception Se a lista estiver cheia.
    */
-  public void inserirFim(int x) throws Exception {
-
-    // validar insercao
-    if (n >= array.length) {
-      throw new Exception("Erro ao inserir!");
-    }
-
+  public void inserirFim(Player x) {
     array[n] = x;
     n++;
   }
@@ -256,18 +245,11 @@ class Lista {
    * @param pos Posicao de insercao.
    * @throws Exception Se a lista estiver cheia ou a posicao invalida.
    */
-  public void inserir(int x, int pos) throws Exception {
-
-    // validar insercao
-    if (n >= array.length || pos < 0 || pos > n) {
-      throw new Exception("Erro ao inserir!");
-    }
-
+  public void inserir(Player x, int pos) {
     // levar elementos para o fim do array
     for (int i = n; i > pos; i--) {
       array[i] = array[i - 1];
     }
-
     array[pos] = x;
     n++;
   }
@@ -279,20 +261,13 @@ class Lista {
    * @return resp int elemento a ser removido.
    * @throws Exception Se a lista estiver vazia.
    */
-  public int removerInicio() throws Exception {
-
-    // validar remocao
-    if (n == 0) {
-      throw new Exception("Erro ao remover!");
-    }
-
-    int resp = array[0];
+  public Player removerInicio() {
+    Player resp = array[0];
     n--;
-
     for (int i = 0; i < n; i++) {
       array[i] = array[i + 1];
     }
-
+    System.out.println("(R) " + resp.getName());
     return resp;
   }
 
@@ -302,14 +277,10 @@ class Lista {
    * @return resp int elemento a ser removido.
    * @throws Exception Se a lista estiver vazia.
    */
-  public int removerFim() throws Exception {
-
-    // validar remocao
-    if (n == 0) {
-      throw new Exception("Erro ao remover!");
-    }
-
-    return array[--n];
+  public Player removerFim() {
+    Player resp = array[--n];
+    System.out.println("(R) " + resp.getName());
+    return resp;
   }
 
   /**
@@ -320,32 +291,23 @@ class Lista {
    * @return resp int elemento a ser removido.
    * @throws Exception Se a lista estiver vazia ou a posicao for invalida.
    */
-  public int remover(int pos) throws Exception {
-
-    // validar remocao
-    if (n == 0 || pos < 0 || pos >= n) {
-      throw new Exception("Erro ao remover!");
-    }
-
-    int resp = array[pos];
+  public Player remover(int pos) {
+    Player resp = array[pos];
     n--;
-
     for (int i = pos; i < n; i++) {
       array[i] = array[i + 1];
     }
-
+    System.out.println("(R) " + resp.getName());
     return resp;
   }
 
   /**
    * Mostra os elementos da lista separados por espacos.
    */
-  public void mostrar() {
-    System.out.print("[ ");
+  public void mostrar() { // TODO olhar se este método sofrerá alguma alteração na entrega do verde
     for (int i = 0; i < n; i++) {
-      System.out.print(array[i] + " ");
+      array[i].PrintPlayer();
     }
-    System.out.println("]");
   }
 
   /**
@@ -355,7 +317,7 @@ class Lista {
    * @return <code>true</code> se o array existir, <code>false</code> em caso
    *         contrario.
    */
-  public boolean pesquisar(int x) {
+  public boolean pesquisar(Player x) {
     boolean retorno = false;
     for (int i = 0; i < n && retorno == false; i++) {
       retorno = (array[i] == x);
@@ -365,8 +327,8 @@ class Lista {
 }
 
 class Pilha {
-  //! NOT IMPLEMENTED CORRECTLY
-  private int[] array;
+  // ! NOT IMPLEMENTED CORRECTLY
+  private Player[] array;
   private int primeiro; // Remove do indice "primeiro".
   private int ultimo; // Insere no indice "ultimo".
 
@@ -383,7 +345,7 @@ class Pilha {
    * @param tamanho Tamanho da fila.
    */
   public Pilha(int tamanho) {
-    array = new int[tamanho + 1];
+    array = new Player[tamanho + 1];
     primeiro = ultimo = 0;
   }
 
@@ -393,13 +355,7 @@ class Pilha {
    * @param x int elemento a ser inserido.
    * @throws Exception Se a fila estiver cheia.
    */
-  public void inserir(int x) throws Exception {
-
-    // validar insercao
-    if (((ultimo + 1) % array.length) == primeiro) {
-      throw new Exception("Erro ao inserir!");
-    }
-
+  public void inserir(Player x) {
     array[ultimo] = x;
     ultimo = (ultimo + 1) % array.length;
   }
@@ -411,14 +367,8 @@ class Pilha {
    * @return resp int elemento a ser removido.
    * @throws Exception Se a fila estiver vazia.
    */
-  public int remover() throws Exception {
-
-    // validar remocao
-    if (primeiro == ultimo) {
-      throw new Exception("Erro ao remover!");
-    }
-
-    int resp = array[primeiro];
+  public Player remover() {
+    Player resp = array[primeiro];
     primeiro = (primeiro + 1) % array.length;
     return resp;
   }
@@ -427,13 +377,9 @@ class Pilha {
    * Mostra os array separados por espacos.
    */
   public void mostrar() {
-    System.out.print("[ ");
-
-    for (int i = primeiro; i != ultimo; i = ((i + 1) % array.length)) {
-      System.out.print(array[i] + " ");
+    for (int i = 0; i < ultimo; i++) {
+      array[i].PrintPlayer();
     }
-
-    System.out.println("]");
   }
 
   public void mostrarRec() {
@@ -460,25 +406,19 @@ class Pilha {
 }
 
 class Celula {
-  public int elemento; // Elemento inserido na celula.
+  public Player elemento; // Elemento inserido na celula.
   public Celula prox; // Aponta a celula prox.
-
-  /**
-   * Construtor da classe.
-   */
-  public Celula() {
-    this(0);
-  }
 
   /**
    * Construtor da classe.
    * 
    * @param elemento int inserido na celula.
    */
-  public Celula(int elemento) {
+  public Celula(Player elemento) {
     this.elemento = elemento;
     this.prox = null;
   }
+
 }
 
 class ListaFlex {
@@ -489,7 +429,7 @@ class ListaFlex {
    * Construtor da classe que cria uma lista sem elementos (somente no cabeca).
    */
   public ListaFlex() {
-    primeiro = new Celula();
+    primeiro = new Celula(null);
     ultimo = primeiro;
   }
 
@@ -498,7 +438,7 @@ class ListaFlex {
    * 
    * @param x int elemento a ser inserido.
    */
-  public void inserirInicio(int x) {
+  public void inserirInicio(Player x) {
     Celula tmp = new Celula(x);
     tmp.prox = primeiro.prox;
     primeiro.prox = tmp;
@@ -513,7 +453,7 @@ class ListaFlex {
    * 
    * @param x int elemento a ser inserido.
    */
-  public void inserirFim(int x) {
+  public void inserirFim(Player x) {
     ultimo.prox = new Celula(x);
     ultimo = ultimo.prox;
   }
@@ -524,16 +464,13 @@ class ListaFlex {
    * @return resp int elemento a ser removido.
    * @throws Exception Se a lista nao contiver elementos.
    */
-  public int removerInicio() throws Exception {
-    if (primeiro == ultimo) {
-      throw new Exception("Erro ao remover (vazia)!");
-    }
-
+  public Player removerInicio() {
     Celula tmp = primeiro;
     primeiro = primeiro.prox;
-    int resp = primeiro.elemento;
+    Player resp = primeiro.elemento;
     tmp.prox = null;
     tmp = null;
+    System.out.println("(R) " + resp.getName());
     return resp;
   }
 
@@ -543,20 +480,15 @@ class ListaFlex {
    * @return resp int elemento a ser removido.
    * @throws Exception Se a lista nao contiver elementos.
    */
-  public int removerFim() throws Exception {
-    if (primeiro == ultimo) {
-      throw new Exception("Erro ao remover (vazia)!");
-    }
-
+  public Player removerFim() {
     // Caminhar ate a penultima celula:
     Celula i;
     for (i = primeiro; i.prox != ultimo; i = i.prox)
       ;
-
-    int resp = ultimo.elemento;
+    Player resp = ultimo.elemento;
     ultimo = i;
     i = ultimo.prox = null;
-
+    System.out.println("(R) " + resp.getName());
     return resp;
   }
 
@@ -568,13 +500,9 @@ class ListaFlex {
    * @param pos int posicao da insercao.
    * @throws Exception Se <code>posicao</code> invalida.
    */
-  public void inserir(int x, int pos) throws Exception {
-
+  public void inserir(Player x, int pos) {
     int tamanho = tamanho();
-
-    if (pos < 0 || pos > tamanho) {
-      throw new Exception("Erro ao inserir posicao (" + pos + " / tamanho = " + tamanho + ") invalida!");
-    } else if (pos == 0) {
+    if (pos == 0) {
       inserirInicio(x);
     } else if (pos == tamanho) {
       inserirFim(x);
@@ -583,7 +511,6 @@ class ListaFlex {
       Celula i = primeiro;
       for (int j = 0; j < pos; j++, i = i.prox)
         ;
-
       Celula tmp = new Celula(x);
       tmp.prox = i.prox;
       i.prox = tmp;
@@ -599,16 +526,10 @@ class ListaFlex {
    * @return resp int elemento a ser removido.
    * @throws Exception Se <code>posicao</code> invalida.
    */
-  public int remover(int pos) throws Exception {
-    int resp;
+  public Player remover(int pos) {
+    Player resp;
     int tamanho = tamanho();
-
-    if (primeiro == ultimo) {
-      throw new Exception("Erro ao remover (vazia)!");
-
-    } else if (pos < 0 || pos >= tamanho) {
-      throw new Exception("Erro ao remover (posicao " + pos + " / " + tamanho + " invalida!");
-    } else if (pos == 0) {
+    if (pos == 0) {
       resp = removerInicio();
     } else if (pos == tamanho - 1) {
       resp = removerFim();
@@ -617,14 +538,13 @@ class ListaFlex {
       Celula i = primeiro;
       for (int j = 0; j < pos; j++, i = i.prox)
         ;
-
       Celula tmp = i.prox;
       resp = tmp.elemento;
       i.prox = tmp.prox;
       tmp.prox = null;
       i = tmp = null;
     }
-
+    System.out.println("(R) " + resp.getName());
     return resp;
   }
 
@@ -632,11 +552,9 @@ class ListaFlex {
    * Mostra os elementos da lista separados por espacos.
    */
   public void mostrar() {
-    System.out.print("[ ");
     for (Celula i = primeiro.prox; i != null; i = i.prox) {
-      System.out.print(i.elemento + " ");
+      i.elemento.PrintPlayer();
     }
-    System.out.println("] ");
   }
 
   /**
@@ -646,7 +564,7 @@ class ListaFlex {
    * @return <code>true</code> se o elemento existir, <code>false</code> em caso
    *         contrario.
    */
-  public boolean pesquisar(int x) {
+  public boolean pesquisar(Player x) {
     boolean resp = false;
     for (Celula i = primeiro.prox; i != null; i = i.prox) {
       if (i.elemento == x) {
@@ -670,7 +588,7 @@ class ListaFlex {
   }
 }
 
-public class PilhaFlex {
+class PilhaFlex {
   private Celula topo;
 
   /**
@@ -685,7 +603,7 @@ public class PilhaFlex {
    * 
    * @param x int elemento a inserir.
    */
-  public void inserir(int x) {
+  public void inserir(Player x) {
     Celula tmp = new Celula(x);
     tmp.prox = topo;
     topo = tmp;
@@ -698,15 +616,16 @@ public class PilhaFlex {
    * @return Elemento removido.
    * @trhows Exception Se a sequencia nao contiver elementos.
    */
-  public int remover() throws Exception {
+  public Player remover() {
     if (topo == null) {
       throw new Exception("Erro ao remover!");
     }
-    int resp = topo.elemento;
+    Player resp = topo.elemento;
     Celula tmp = topo;
     topo = topo.prox;
     tmp.prox = null;
     tmp = null;
+    System.out.println("(R) " + resp.getName());
     return resp;
   }
 
@@ -714,45 +633,10 @@ public class PilhaFlex {
    * Mostra os elementos separados por espacos, comecando do topo.
    */
   public void mostrar() {
-    System.out.print("[ ");
     for (Celula i = topo; i != null; i = i.prox) {
-      System.out.print(i.elemento + " ");
-    }
-    System.out.println("] ");
-  }
-
-  public int getSoma() {
-    return getSoma(topo);
-  }
-
-  private int getSoma(Celula i) {
-    int resp = 0;
-    if (i != null) {
-      resp += i.elemento + getSoma(i.prox);
-    }
-    return resp;
-  }
-
-  public int getMax() {
-    int max = topo.elemento;
-    for (Celula i = topo.prox; i != null; i = i.prox) {
-      if (i.elemento > max)
-        max = i.elemento;
-    }
-    return max;
-  }
-
-  public void mostraPilha() {
-    mostraPilha(topo);
-  }
-
-  private void mostraPilha(Celula i) {
-    if (i != null) {
-      mostraPilha(i.prox);
-      System.out.println("" + i.elemento);
+      i.elemento.PrintPlayer();
     }
   }
-
 }
 // #endregion
 
