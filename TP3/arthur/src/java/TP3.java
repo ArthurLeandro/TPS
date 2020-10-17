@@ -9,12 +9,26 @@ import java.time.*;
 public class TP3 {
   public static void main(String[] args) {
     // TODO implement main
+    // !Every data strucute have a way to receive its full structure. What I should
+    // do in the main in the Exercise Number
+    // ! put the created player into the designated structured. then Pass the
+    // exercise number and this structure
   }
 }
 // #endregion
 
 // #region UTILS
 class Utilitary {
+
+  Player[] array;
+  Celula structure;
+
+  public Utilitary(boolean isStatic) {
+    if (isStatic)
+      array = new Player[600];
+    else
+      structure = new Celula(null);
+  }
 
   public static Player CreateNewPlayerFromFile(String valueToRead) {
     Player valueToReturn = null;
@@ -198,6 +212,11 @@ class Lista {
     this(6);
   }
 
+  public Lista(Player[] alreadyDefinedList) {
+    array = alreadyDefinedList;
+    n = alreadyDefinedList.length;
+  }
+
   /**
    * Construtor da classe.
    * 
@@ -327,7 +346,6 @@ class Lista {
 }
 
 class Pilha {
-  // ! NOT IMPLEMENTED CORRECTLY
   private Player[] array;
   private int primeiro; // Remove do indice "primeiro".
   private int ultimo; // Insere no indice "ultimo".
@@ -337,6 +355,12 @@ class Pilha {
    */
   public Pilha() {
     this(6);
+  }
+
+  public Pilha(Player[] alreadyDefinedStack) {
+    array = alreadyDefinedStack;
+    primeiro = 0;
+    ultimo = alreadyDefinedStack.length;
   }
 
   /**
@@ -431,6 +455,15 @@ class ListaFlex {
   public ListaFlex() {
     primeiro = new Celula(null);
     ultimo = primeiro;
+  }
+
+  public ListaFlex(Celula fullList) {
+    primeiro = fullList;
+    ultimo = fullList.prox;
+    while (ultimo.prox != null) {
+      ultimo = fullList.prox;
+    }
+
   }
 
   /**
@@ -596,6 +629,10 @@ class PilhaFlex {
    */
   public PilhaFlex() {
     topo = null;
+  }
+
+  public PilhaFlex(Celula alreadyDefinedStack) {
+    topo = alreadyDefinedStack;
   }
 
   /**
