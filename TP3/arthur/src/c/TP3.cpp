@@ -353,7 +353,7 @@ Celula *topo; // Sem celula cabeca.
 /**
  * Cria uma fila sem elementos.
  */
-void newStack()
+void FlexStackStart()
 {
   topo = NULL;
 }
@@ -449,6 +449,10 @@ void FlexQueueShow()
 
 // < ------------ SORTING    ------------ >
 
+/**
+ * Método utilizado para operar os comandos.
+ * @param  char* String que contem os comandos a serem executados
+*/
 void HandleComand(char *word)
 { //So vou ter Fila e Lista Flex ou Static
   char *command = Split(&word, " ");
@@ -489,6 +493,10 @@ void HandleComand(char *word)
     { //Pilha Flexivel
       InsertStack(GetPlayerFromLine(Split(&word, " ")));
     }
+    else if (Exercise == 7)
+    {
+      FlexQueueInsert(GetPlayerFromLine(Split(&word, " ")));
+    }
     else
     {
       QueueInsert(GetPlayerFromLine(Split(&word, " ")));
@@ -501,6 +509,10 @@ void HandleComand(char *word)
     { //Pilha Flexivel
       RemoveStack();
     }
+    else if (Exercise == 7)
+    {
+      FlexQueueRemove();
+    }
     else
     {
       QueueRemove();
@@ -512,6 +524,8 @@ void InitStructure()
 {
   ListStart();
   QueueStart();
+  FlexQueueStart();
+  FlexStackStart();
 }
 
 void Insert(bool isStatic, Player x)
@@ -527,10 +541,14 @@ void Insert(bool isStatic, Player x)
     {
       QueueInsert(x);
     }
+    else if (Exercise == 7)
+    {
+
+      FlexQueueInsert(x);
+    }
     else
     {
-      //TODO CREATE FLEX FILA
-      FlexQueueInsert(x);
+      QueueInsert(x);
     }
   }
 }
