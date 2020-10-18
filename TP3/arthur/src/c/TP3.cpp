@@ -26,18 +26,19 @@ typedef struct Players
 
 typedef struct Celula
 {
-  int elemento;        // Elemento inserido na celula.
+  Player elemento;     // Elemento inserido na celula.
   struct Celula *prox; // Aponta a celula prox.
 } Celula;
 
 // < ------------ UTILS   ------------ >
-Celula *novaCelula(int elemento)
+Celula *novaCelula(Player elemento)
 {
   Celula *nova = (Celula *)malloc(sizeof(Celula));
   nova->elemento = elemento;
   nova->prox = NULL;
   return nova;
 }
+
 void PrintPlayer(Player *player)
 {
   printf("[%d ## %s ## %d ## %d ## %s ## %s ## %s ## %s]\n", player->id, player->name, player->heigth, player->weigth, player->birthYear, player->university, player->birthCity, player->birthState);
@@ -45,7 +46,6 @@ void PrintPlayer(Player *player)
 
 void PlayerSet(int checker, Player *playerToReturn, char *field)
 {
-
   if (checker == 0)
   {
     playerToReturn->id = atoi(field);
@@ -83,7 +83,6 @@ void PlayerSet(int checker, Player *playerToReturn, char *field)
   }
   else if (checker == 7)
   {
-
     int place = strlen(field);
     if (field[place - 1] == '\n')
     {
@@ -108,8 +107,9 @@ Player GetPlayerFromFile(char *word)
   return playerToReturn;
 }
 
-char *GetLineFromFile(int lineToRead, FILE *csvReader)
+char *GetLineFromFile(int lineToRead)
 {
+  FILE *csvReader = fopen("/tmp/players.csv", "r");
   static char buffer[1024];
   for (size_t i = 0; i < lineToRead + 1; i++)
   {
@@ -120,6 +120,16 @@ char *GetLineFromFile(int lineToRead, FILE *csvReader)
   return buffer;
 }
 
+Player GetPlayerFromLine(char *player)
+{
+  char *buffer;
+  int lineToRead = atoi(player);
+  buffer = GetLineFromFile(lineToRead); //blocao contendo todos os dados da linha que representa um jogador
+  char *test = Replace(buffer, ",,", ",nao informado,");
+  char *final = Replace(test, ",\n", ",nao informado\n");
+  free(test);
+  return GetPlayerFromFile(final);
+}
 bool IsAble(char *_word)
 {
   bool valueToReturn = false;
@@ -173,7 +183,7 @@ Celula *topo; // Sem celula cabeca.
 /**
  * Cria uma fila sem elementos.
  */
-void start()
+void newStack()
 {
   topo = NULL;
 }
@@ -182,7 +192,7 @@ void start()
  * Insere elemento na pilha (politica FILO).
  * @param x int elemento a inserir.
  */
-void inserir(int x)
+void InsertStack(Player x)
 {
   Celula *tmp = novaCelula(x);
   tmp->prox = topo;
@@ -194,14 +204,9 @@ void inserir(int x)
  * Remove elemento da pilha (politica FILO).
  * @return Elemento removido.
  */
-int remover()
+Player RemoveStack()
 {
-  if (topo == NULL)
-  {
-    errx(1, "Erro ao remover!");
-  }
-
-  int resp = topo->elemento;
+  Player resp = topo->elemento;
   Celula *tmp = topo;
   topo = topo->prox;
   tmp->prox = NULL;
@@ -213,18 +218,36 @@ int remover()
 /**
  * Mostra os elementos separados por espacos, comecando do topo.
  */
-void mostrar()
+void ShowStack()
 {
   Celula *i;
-  printf("[");
   for (i = topo; i != NULL; i = i->prox)
   {
-    printf("%d ,", i->elemento);
+    PrintPlayer(&i->elemento); // ! Passivel de erro CHECK LATER
   }
-
-  printf("] \n");
 }
 
 // < ------------ SORTING    ------------ >
 
 // < ------------ MAIN   ------------ >
+
+int main()
+{
+  char word[1024];
+  bool controller = false;
+  scanf("%[^\n]%*c", word);
+  int exerciseNumber = 17;
+  do
+  {
+    controller = IsAble(word);
+    if (!controller)
+    {
+      Player aux = GetPlayerFromLine(word);
+    }
+    scanf("%[^\n]%*c", word);
+  } while (!controller); //END OF FIRST ITERATION
+  scanf("%[^\n]%*c", word);
+  int amount = atoi(word);
+  
+  return 0;
+}

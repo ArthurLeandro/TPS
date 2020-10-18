@@ -3,53 +3,97 @@
 import java.io.*;
 import java.util.*;
 import java.time.*;
+
 // #endregion
+interface AED {
+  public void inserirInicio(Player x);
+
+  public void inserirFim(Player x);
+
+  public void inserir(Player x, int pos);
+
+  public Player removerInicio();
+
+  public Player removerFim();
+
+  public Player remover(int pos);
+
+  public void mostrar();
+}
 
 // #region MAIN
 public class TP3 {
   public static void main(String[] args) {
-    // TODO implement main
-    // !Every data strucute have a way to receive its full structure. What I should
-    // do in the main in the Exercise Number
-    // ! put the created player into the designated structured. then Pass the
-    // exercise number and this structure
+    int EXERCISE_NUMBER = 3;
+    boolean controller = false;
+    String word = "";
+    Utilitary util = new Utilitary(EXERCISE_NUMBER == 1);
+    Scanner reader = new Scanner(System.in);
+    do {
+      word = reader.nextLine();
+      controller = util.IsAble(word);
+      if (!controller) {
+        util.Insert(util.CreateNewPlayerFromFile(word));
+      }
+    } while (!controller);
+    int amount = reader.nextInt();
+    util.InitValuesOnStructure(EXERCISE_NUMBER);
+    for (int i = 0; i < amount; i++) {
+      util.HandleExercise(EXERCISE_NUMBER, reader.nextLine());
+    }
+    util.ShowStructure(EXERCISE_NUMBER);
+    reader.close();
   }
 }
 // #endregion
 
 // #region UTILS
 class Utilitary {
-
   Player[] array;
-  Celula structure;
+  Celula structure, last;
+  boolean isStatic;
+  int lastValidPosition;
+
+  Lista list;
+  Pilha stack;
+  ListaFlex listFlex;
+  PilhaFlex stackFlex;
 
   public Utilitary(boolean isStatic) {
+    lastValidPosition = 0;
+    this.isStatic = isStatic;
     if (isStatic)
       array = new Player[600];
     else
-      structure = new Celula(null);
+      last = structure = new Celula(null);
+
   }
 
-  public static Player CreateNewPlayerFromFile(String valueToRead) {
+  public Player CreateNewPlayerFromFile(String valueToRead) {
     Player valueToReturn = null;
-    Scanner csvReader = new Scanner(new File("/tmp/players.csv"));
-    int lineToread = Integer.parseInt(valueToRead);
-    String auxWord = "";
-    for (int i = 0; i < lineToread + 2; i++) {
-      auxWord = csvReader.nextLine();
+    try {
+
+      Scanner csvReader = new Scanner(new File("/tmp/players.csv"));
+      int lineToread = Integer.parseInt(valueToRead);
+      String auxWord = "";
+      for (int i = 0; i < lineToread + 2; i++) {
+        auxWord = csvReader.nextLine();
+      }
+      csvReader.close();
+      String[] splitted = auxWord.split(",");
+      splitted = FixEntry(splitted);
+      valueToReturn = new Player(splitted);
+    } catch (Exception e) {
+      System.out.println("Erro ao criar o jogador: ");
     }
-    csvReader.close();
-    String[] splitted = auxWord.split(",");
-    splitted = FixEntry(splitted);
-    valueToReturn = new Player(splitted);
     return valueToReturn;
   }
 
-  public static boolean IsAble(String _word) {
+  public boolean IsAble(String _word) {
     return _word.charAt(0) == ('F') && _word.charAt(1) == ('I') && _word.charAt(2) == ('M');
   }
 
-  public static String[] FixEntry(String[] word) {
+  public String[] FixEntry(String[] word) {
     if (word.length != 8) {
       String[] valueToReturn = new String[8];
       String NULO = "nao informado";
@@ -70,14 +114,84 @@ class Utilitary {
     }
   }
 
-  public static void HandleExercise() {
-    // TODO Handle Input from pub in
+  public void Insert(Player playerToInsert) {
+    if (this.isStatic) {
+      this.array[lastValidPosition] = playerToInsert;
+      lastValidPosition++;
+    } else {
+      last = new Celula(playerToInsert);
+      last = last.prox;
+    }
   }
 
-  public static void HandleCommands() {
-    // TODO Handle Input from pub in
+  public void HandleExercise(int exercise, String word) {
+    if (exercise == 1) {
+      HandleCommands(word.split(" "), list);
+    } else if (exercise == 3) {
+      HandleCommands(word.split(" "), stack);
+    } else if (exercise == 5) {
+      HandleCommands(word.split(" "), listFlex);
+    } else if (exercise == 6) {
+      HandleCommands(word.split(" "), stackFlex);
+    }
   }
 
+  public void HandleCommands(String[] splitted, AED dataStructure) {
+    dataStructure.mostrar();
+    switch (splitted[0]) {
+      case "II":
+        dataStructure.inserirInicio(CreateNewPlayerFromFile(splitted[1]));
+        break;
+      case "I*":
+        dataStructure.inserir(CreateNewPlayerFromFile(splitted[2]), Integer.parseInt(splitted[1]));
+        break;
+      case "IF":
+        dataStructure.inserirFim(CreateNewPlayerFromFile(splitted[1]));
+        break;
+      case "RI":
+        dataStructure.removerInicio();
+        break;
+      case "R*":
+        dataStructure.remover(Integer.parseInt(splitted[1]));
+        break;
+      case "RF":
+        dataStructure.removerFim();
+        break;
+      case "I":
+        dataStructure.inserirInicio(CreateNewPlayerFromFile(splitted[1]));
+        break;
+      case "R":
+        dataStructure.removerFim();
+        break;
+      default:
+        System.out.println("Não foi possível concluir a operação requisitada em questão");
+        break;
+    }
+  }
+
+  public void InitValuesOnStructure(int exercise) {
+    if (exercise == 1) {
+      list = new Lista(array, lastValidPosition);
+    } else if (exercise == 3) {
+      stack = new Pilha(array, lastValidPosition);
+    } else if (exercise == 5) {
+      listFlex = new ListaFlex(this.structure);
+    } else if (exercise == 6) {
+      stackFlex = new PilhaFlex(this.structure);
+    }
+  }
+
+  public void ShowStructure(int exercise) {
+    if (exercise == 1) {
+      list.mostrar();
+    } else if (exercise == 3) {
+      stack.mostrar();
+    } else if (exercise == 5) {
+      listFlex.mostrar();
+    } else if (exercise == 6) {
+      stackFlex.mostrar();
+    }
+  }
 }
 // #endregion
 
@@ -201,7 +315,7 @@ class Player {
 
 }
 
-class Lista {
+class Lista implements AED {
   private Player[] array;
   private int n;
 
@@ -212,9 +326,9 @@ class Lista {
     this(6);
   }
 
-  public Lista(Player[] alreadyDefinedList) {
+  public Lista(Player[] alreadyDefinedList, int last) {
     array = alreadyDefinedList;
-    n = alreadyDefinedList.length;
+    n = last;
   }
 
   /**
@@ -345,7 +459,7 @@ class Lista {
   }
 }
 
-class Pilha {
+class Pilha implements AED {
   private Player[] array;
   private int primeiro; // Remove do indice "primeiro".
   private int ultimo; // Insere no indice "ultimo".
@@ -357,10 +471,10 @@ class Pilha {
     this(6);
   }
 
-  public Pilha(Player[] alreadyDefinedStack) {
+  public Pilha(Player[] alreadyDefinedStack, int last) {
     array = alreadyDefinedStack;
     primeiro = 0;
-    ultimo = alreadyDefinedStack.length;
+    ultimo = last;
   }
 
   /**
@@ -370,7 +484,7 @@ class Pilha {
    */
   public Pilha(int tamanho) {
     array = new Player[tamanho + 1];
-    primeiro = ultimo = 0;
+    primeiro = ultimo = array.length - 1;// acho que tem que ser menos 1
   }
 
   /**
@@ -379,9 +493,9 @@ class Pilha {
    * @param x int elemento a ser inserido.
    * @throws Exception Se a fila estiver cheia.
    */
-  public void inserir(Player x) {
+  public void inserirInicio(Player x) {
     array[ultimo] = x;
-    ultimo = (ultimo + 1) % array.length;
+    ultimo++;
   }
 
   /**
@@ -392,8 +506,8 @@ class Pilha {
    * @throws Exception Se a fila estiver vazia.
    */
   public Player remover() {
-    Player resp = array[primeiro];
-    primeiro = (primeiro + 1) % array.length;
+    Player resp = array[--ultimo];
+    System.out.println("(R) " + resp.getName());
     return resp;
   }
 
@@ -401,7 +515,7 @@ class Pilha {
    * Mostra os array separados por espacos.
    */
   public void mostrar() {
-    for (int i = 0; i < ultimo; i++) {
+    for (int i = ultimo; i < array.length; i++) {
       array[i].PrintPlayer();
     }
   }
@@ -427,6 +541,37 @@ class Pilha {
   public boolean isVazia() {
     return (primeiro == ultimo);
   }
+
+  @Override
+  public void inserirFim(Player x) {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public void inserir(Player x, int pos) {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public Player removerInicio() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Player removerFim() {
+    Player resp = array[primeiro];
+    primeiro = (primeiro + 1) % array.length;
+    return resp;
+  }
+
+  @Override
+  public Player remover(int pos) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }
 
 class Celula {
@@ -445,7 +590,7 @@ class Celula {
 
 }
 
-class ListaFlex {
+class ListaFlex implements AED {
   private Celula primeiro;
   private Celula ultimo;
 
@@ -621,7 +766,7 @@ class ListaFlex {
   }
 }
 
-class PilhaFlex {
+class PilhaFlex implements AED {
   private Celula topo;
 
   /**
@@ -640,7 +785,7 @@ class PilhaFlex {
    * 
    * @param x int elemento a inserir.
    */
-  public void inserir(Player x) {
+  public void inserirInicio(Player x) {
     Celula tmp = new Celula(x);
     tmp.prox = topo;
     topo = tmp;
@@ -654,9 +799,6 @@ class PilhaFlex {
    * @trhows Exception Se a sequencia nao contiver elementos.
    */
   public Player remover() {
-    if (topo == null) {
-      throw new Exception("Erro ao remover!");
-    }
     Player resp = topo.elemento;
     Celula tmp = topo;
     topo = topo.prox;
@@ -673,6 +815,41 @@ class PilhaFlex {
     for (Celula i = topo; i != null; i = i.prox) {
       i.elemento.PrintPlayer();
     }
+  }
+
+  @Override
+  public void inserirFim(Player x) {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public void inserir(Player x, int pos) {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public Player removerInicio() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Player removerFim() {
+    Player resp = topo.elemento;
+    Celula tmp = topo;
+    topo = topo.prox;
+    tmp.prox = null;
+    tmp = null;
+    System.out.println("(R) " + resp.getName());
+    return resp;
+  }
+
+  @Override
+  public Player remover(int pos) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }
 // #endregion
