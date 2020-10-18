@@ -31,6 +31,7 @@ typedef struct Celula
 } Celula;
 
 // < ------------ UTILS   ------------ >
+
 Celula *novaCelula(Player elemento)
 {
   Celula *nova = (Celula *)malloc(sizeof(Celula));
@@ -39,6 +40,179 @@ Celula *novaCelula(Player elemento)
   return nova;
 }
 
+char *Split(char **word, char *regex)
+{
+  return strsep(word, regex);
+}
+bool Equals(char *first, char *second)
+{
+  return strcmp(first, second) == 0;
+}
+
+// < ------------ DATA STRUCTURES   ------------ >
+
+Player array[400]; // Elementos da pilha
+int n;             // Quantidade de array.
+
+/**
+ * Inicializacoes
+ */
+void ListStart()
+{
+  n = 0;
+}
+
+/**
+ * Insere um elemento na primeira posicao da lista e move os demais
+ * elementos para o fim da 
+ * @param x int elemento a ser inserido.
+ */
+void ListInsertBegin(Player x)
+{
+  //levar elementos para o fim do array
+  for (int i = n; i > 0; i--)
+  {
+    array[i] = array[i - 1];
+  }
+  array[0] = x;
+  n++;
+}
+
+/**
+ * Insere um elemento na ultima posicao da 
+ * @param x int elemento a ser inserido.
+ */
+void ListInsertEnd(Player x)
+{
+  array[n] = x;
+  n++;
+}
+
+/**
+ * Insere um elemento em uma posicao especifica e move os demais
+ * elementos para o fim da 
+ * @param x int elemento a ser inserido.
+ * @param pos Posicao de insercao.
+ */
+void ListInsert(Player x, int pos)
+{
+  //levar elementos para o fim do array
+  for (int i = n; i > pos; i--)
+  {
+    array[i] = array[i - 1];
+  }
+  array[pos] = x;
+  n++;
+}
+
+/**
+ * Remove um elemento da primeira posicao da lista e movimenta 
+ * os demais elementos para o inicio da mesma.
+ * @return resp int elemento a ser removido.
+ */
+Player ListRemoveBegin()
+{
+  Player resp;
+  resp = array[0];
+  n--;
+  for (int i = 0; i < n; i++)
+  {
+    array[i] = array[i + 1];
+  }
+  printf("(R) %s", resp.name);
+  return resp;
+}
+
+/**
+ * Remove um elemento da ultima posicao da 
+ * @return resp int elemento a ser removido.
+ */
+Player ListRemoveEnd()
+{
+  Player resp = array[--n];
+  printf("(R) %s", resp.name);
+  return resp;
+}
+
+/**
+ * Remove um elemento de uma posicao especifica da lista e 
+ * movimenta os demais elementos para o inicio da mesma.
+ * @param pos Posicao de remocao.
+ * @return resp int elemento a ser removido.
+ */
+Player ListRemove(int pos)
+{
+  Player resp;
+  resp = array[pos];
+  n--;
+  for (int i = pos; i < n; i++)
+  {
+    array[i] = array[i + 1];
+  }
+  printf("(R) %s", resp.name);
+  return resp;
+}
+
+/**
+ * Mostra os array separados por espacos.
+ */
+void ListShow()
+{
+  for (int i = 0; i < n; i++)
+  {
+    PrintPlayer(&array[i]); // !Passivel de !Error
+  }
+}
+
+// < ------------ FILA CIRCULAR   ------------ >
+int MAXTAM;
+int primeiro; // Remove do indice "primeiro".
+int ultimo;   // Insere no indice "ultimo".
+
+/**
+ * Inicializacoes
+ */
+void QueueStart()
+{
+  primeiro = ultimo = 0;
+  MAXTAM = 5;
+}
+
+/**
+ * Insere um elemento na ultima posicao da 
+ * @param x int elemento a ser inserido.
+ * @Se a fila estiver cheia.
+ */
+void QueueInsert(Player x)
+{
+  array[ultimo] = x;
+  ultimo = (ultimo + 1) % MAXTAM;
+}
+
+/**
+ * Remove um elemento da primeira posicao da fila e movimenta 
+ * os demais elementos para o primeiro da mesma.
+ * @return resp int elemento a ser removido.
+ * @Se a fila estiver vazia.
+ */
+Player QueueRemove()
+{
+  Player resp = array[primeiro];
+  primeiro = (primeiro + 1) % MAXTAM;
+  printf("(R) %s", resp.name);
+  return resp;
+}
+
+/**
+ * Mostra os array separados por espacos.
+ */
+void QueueShow()
+{
+  for (int i = primeiro; i != ultimo; i = ((i + 1) % MAXTAM))
+  {
+    PrintPlayer(&array[i]);
+  }
+}
 void PrintPlayer(Player *player)
 {
   printf("[%d ## %s ## %d ## %d ## %s ## %s ## %s ## %s]\n", player->id, player->name, player->heigth, player->weigth, player->birthYear, player->university, player->birthCity, player->birthState);
@@ -171,10 +345,6 @@ char *Replace(char const *const original, char const *const pattern, char const 
     return returned;
   }
 }
-
-void ExerciseNumber(int n)
-{
-}
 // < ------------ DATA STRUCTURES   ------------ >
 
 //PILHAFLEX
@@ -228,7 +398,162 @@ void ShowStack()
 }
 
 // < ------------ SORTING    ------------ >
+Celula *firstInLine;
+Celula *lastInLine;
 
+/**
+ * Cria uma fila sem elementos (somente no cabeca).
+ */
+void FlexQueueStart()
+{
+  Player nothing;
+  firstInLine = novaCelula(nothing);
+  lastInLine = firstInLine;
+}
+
+/**
+ * Insere elemento na fila (politica FIFO).
+ * @param x int Elemento a inserir.
+ */
+void FlexQueueInsert(Player x)
+{
+  lastInLine->prox = novaCelula(x);
+  lastInLine = lastInLine->prox;
+}
+
+/**
+ * Remove elemento da fila (politica FIFO).
+ * @return Elemento removido.
+ */
+Player FlexQueueRemove()
+{
+  Celula *tmp = firstInLine;
+  firstInLine = firstInLine->prox;
+  Player resp = firstInLine->elemento;
+  tmp->prox = NULL;
+  free(tmp);
+  tmp = NULL;
+  return resp;
+}
+
+/**
+ * Mostra os elementos separados por espacos.
+ */
+void FlexQueueShow()
+{
+  for (Celula *i = firstInLine->prox; i != NULL; i = i->prox)
+  {
+    PrintPlayer(&i->elemento);
+  }
+}
+
+// < ------------ SORTING    ------------ >
+
+void HandleComand(char *word)
+{ //So vou ter Fila e Lista Flex ou Static
+  char *command = Split(&word, " ");
+  if (Equals(command, "II"))
+  {
+    //LISta
+    ListInsertBegin(GetPlayerFromLine(Split(&word, " ")));
+  }
+  else if (Equals(command, "IF"))
+  {
+    //LISta
+    ListInsertEnd(GetPlayerFromLine(Split(&word, " ")));
+  }
+  else if (Equals(command, "I*"))
+  {
+    //LISta
+    ListInsert(GetPlayerFromLine(Split(&word, " ")), atoi(Split(&word, " ")));
+  }
+  if (Equals(command, "RI"))
+  {
+    //LISta
+    ListRemoveBegin();
+  }
+  else if (Equals(command, "RF"))
+  {
+    //LISta
+    ListRemoveEnd();
+  }
+  else if (Equals(command, "R*"))
+  {
+    //LISta
+    ListRemove(atoi(Split(&word, " ")));
+  }
+  else if (Equals(command, "I"))
+  {
+    //FILA
+    if (Exercise == 10)
+    { //Pilha Flexivel
+      InsertStack(GetPlayerFromLine(Split(&word, " ")));
+    }
+    else
+    {
+      QueueInsert(GetPlayerFromLine(Split(&word, " ")));
+    }
+  }
+  else if (Equals(command, "R"))
+  {
+    //FILA
+    if (Exercise == 10)
+    { //Pilha Flexivel
+      RemoveStack();
+    }
+    else
+    {
+      QueueRemove();
+    }
+  }
+}
+
+void InitStructure()
+{
+  ListStart();
+  QueueStart();
+}
+
+void Insert(bool isStatic, Player x)
+{
+  if (isStatic)
+  {
+    array[n] = x;
+    n++;
+  }
+  else
+  { //PILHA (10) || FILA
+    if (Exercise == 10)
+    {
+      QueueInsert(x);
+    }
+    else
+    {
+      //TODO CREATE FLEX FILA
+      FlexQueueInsert(x);
+    }
+  }
+}
+
+void ShowExercise(int Ex)
+{
+  if (Ex == 2)
+  {
+    ListShow();
+  }
+  else if (Ex == 4)
+  {
+    QueueShow();
+  }
+  else if (Ex == 7)
+  {
+    FlexQueueShow();
+  }
+  else if (Ex == 10)
+  {
+    ShowStack();
+  }
+}
 // < ------------ MAIN   ------------ >
 
 int main()
@@ -236,18 +561,23 @@ int main()
   char word[1024];
   bool controller = false;
   scanf("%[^\n]%*c", word);
-  int exerciseNumber = 17;
+  bool isStatic = Exercise == 2 || Exercise == 4;
   do
   {
     controller = IsAble(word);
     if (!controller)
     {
-      Player aux = GetPlayerFromLine(word);
+      Insert(isStatic, GetPlayerFromLine(word));
     }
     scanf("%[^\n]%*c", word);
   } while (!controller); //END OF FIRST ITERATION
   scanf("%[^\n]%*c", word);
   int amount = atoi(word);
-  
+  for (int i = 0; i < amount; i++)
+  {
+    scanf("%[^\n]%*c", word);
+    HandleComand(word);
+  }
+  ShowExercise(Exercise);
   return 0;
 }
