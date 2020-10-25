@@ -27,7 +27,7 @@ public class TP3 {
     int EXERCISE_NUMBER = 3;
     boolean controller = false;
     String word = "";
-    Utilitary util = new Utilitary(EXERCISE_NUMBER == 1);
+    Utilitary util = new Utilitary(EXERCISE_NUMBER == 1 || EXERCISE_NUMBER == 3);
     Scanner reader = new Scanner(System.in);
     do {
       word = reader.nextLine();
@@ -36,6 +36,9 @@ public class TP3 {
         util.Insert(util.CreateNewPlayerFromFile(word));
       }
     } while (!controller);
+    for (Player s : util.array) {
+      s.PrintPlayer();
+    }
     int amount = reader.nextInt();
     util.InitValuesOnStructure(EXERCISE_NUMBER);
     for (int i = 0; i < amount; i++) {
@@ -137,7 +140,7 @@ class Utilitary {
   }
 
   public void HandleCommands(String[] splitted, AED dataStructure) {
-    dataStructure.mostrar();
+    // dataStructure.mostrar();
     switch (splitted[0]) {
       case "II":
         dataStructure.inserirInicio(CreateNewPlayerFromFile(splitted[1]));
@@ -293,8 +296,6 @@ class Player {
 
   public void PrintPlayer() {
     StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append("[");
-    stringBuilder.append(getId());
     stringBuilder.append(" ## ");
     stringBuilder.append(getName());
     stringBuilder.append(" ## ");
@@ -309,7 +310,7 @@ class Player {
     stringBuilder.append(getBirthCity());
     stringBuilder.append(" ## ");
     stringBuilder.append(getBirthState());
-    stringBuilder.append("]");
+    stringBuilder.append("##");
     System.out.println(stringBuilder.toString());
   }
 
@@ -439,6 +440,7 @@ class Lista implements AED {
    */
   public void mostrar() { // TODO olhar se este método sofrerá alguma alteração na entrega do verde
     for (int i = 0; i < n; i++) {
+      System.out.print("[" + i + "] ");
       array[i].PrintPlayer();
     }
   }
@@ -516,20 +518,8 @@ class Pilha implements AED {
    */
   public void mostrar() {
     for (int i = ultimo; i < array.length; i++) {
-      array[i].PrintPlayer();
-    }
-  }
-
-  public void mostrarRec() {
-    System.out.print("[ ");
-    mostrarRec(primeiro);
-    System.out.println("]");
-  }
-
-  public void mostrarRec(int i) {
-    if (i != ultimo) {
-      System.out.print(array[i] + " ");
-      mostrarRec((i + 1) % array.length);
+      System.out.print("[" + i + "]");
+      // array[i].PrintPlayer();
     }
   }
 
@@ -730,7 +720,9 @@ class ListaFlex implements AED {
    * Mostra os elementos da lista separados por espacos.
    */
   public void mostrar() {
-    for (Celula i = primeiro.prox; i != null; i = i.prox) {
+    int j = 0;
+    for (Celula i = primeiro.prox; i != null; i = i.prox, j++) {
+      System.out.println("[" + j + "]");
       i.elemento.PrintPlayer();
     }
   }
@@ -812,7 +804,9 @@ class PilhaFlex implements AED {
    * Mostra os elementos separados por espacos, comecando do topo.
    */
   public void mostrar() {
-    for (Celula i = topo; i != null; i = i.prox) {
+    int j = 0;
+    for (Celula i = topo; i != null; i = i.prox, j++) {
+      System.out.print("[" + j + "] ");
       i.elemento.PrintPlayer();
     }
   }
@@ -852,6 +846,10 @@ class PilhaFlex implements AED {
     return null;
   }
 }
+
+// MATRIZ DINAMICA
+
+// QUICK SORT COM LISTA DUPLA
 // #endregion
 
 // #region SORTING

@@ -10,7 +10,7 @@
 
 // < ------------ DECLARATION METHODS   ------------ >
 
-int Exercise = 1;
+int Exercise = 2;
 
 typedef struct Players
 {
@@ -40,9 +40,9 @@ Celula *novaCelula(Player elemento)
   return nova;
 }
 
-char *Split(char **word, char *regex)
+char *Split(char **word)
 {
-  return strsep(word, regex);
+  return strsep(word, " ");
 }
 bool Equals(char *first, char *second)
 {
@@ -60,6 +60,43 @@ int n;             // Quantidade de array.
 void ListStart()
 {
   n = 0;
+}
+
+char *Replace(char const *const original, char const *const pattern, char const *const replacement)
+{
+  size_t const replen = strlen(replacement);
+  size_t const patlen = strlen(pattern);
+  size_t const orilen = strlen(original);
+  size_t patcnt = 0;
+  const char *oriptr;
+  const char *patloc;
+  for (oriptr = original; patloc = strstr(oriptr, pattern); oriptr = patloc + patlen)
+  {
+    patcnt++;
+  }
+  {
+    size_t const retlen = orilen + patcnt * (replen - patlen);
+    char *const returned = (char *)malloc(sizeof(char) * (retlen + 1));
+    if (returned != NULL)
+    {
+      char *retptr = returned;
+      for (oriptr = original; patloc = strstr(oriptr, pattern); oriptr = patloc + patlen)
+      {
+        size_t const skplen = patloc - oriptr;
+        strncpy(retptr, oriptr, skplen);
+        retptr += skplen;
+        strncpy(retptr, replacement, replen);
+        retptr += replen;
+      }
+      strcpy(retptr, oriptr);
+    }
+    return returned;
+  }
+}
+
+void PrintPlayer(Player *player)
+{
+  printf("[%d ## %s ## %d ## %d ## %s ## %s ## %s ## %s]\n", player->id, player->name, player->heigth, player->weigth, player->birthYear, player->university, player->birthCity, player->birthState);
 }
 
 /**
@@ -119,7 +156,7 @@ Player ListRemoveBegin()
   {
     array[i] = array[i + 1];
   }
-  printf("(R) %s", resp.name);
+  printf("(R) %s\n", resp.name);
   return resp;
 }
 
@@ -130,7 +167,7 @@ Player ListRemoveBegin()
 Player ListRemoveEnd()
 {
   Player resp = array[--n];
-  printf("(R) %s", resp.name);
+  printf("(R) %s\n", resp.name);
   return resp;
 }
 
@@ -149,7 +186,7 @@ Player ListRemove(int pos)
   {
     array[i] = array[i + 1];
   }
-  printf("(R) %s", resp.name);
+  printf("(R) %s\n", resp.name);
   return resp;
 }
 
@@ -199,7 +236,7 @@ Player QueueRemove()
 {
   Player resp = array[primeiro];
   primeiro = (primeiro + 1) % MAXTAM;
-  printf("(R) %s", resp.name);
+  printf("(R) %s\n", resp.name);
   return resp;
 }
 
@@ -212,10 +249,6 @@ void QueueShow()
   {
     PrintPlayer(&array[i]);
   }
-}
-void PrintPlayer(Player *player)
-{
-  printf("[%d ## %s ## %d ## %d ## %s ## %s ## %s ## %s]\n", player->id, player->name, player->heigth, player->weigth, player->birthYear, player->university, player->birthCity, player->birthState);
 }
 
 void PlayerSet(int checker, Player *playerToReturn, char *field)
@@ -285,7 +318,8 @@ char *GetLineFromFile(int lineToRead)
 {
   FILE *csvReader = fopen("/tmp/players.csv", "r");
   static char buffer[1024];
-  for (size_t i = 0; i < lineToRead + 1; i++)
+  fgets(buffer, 1024, csvReader);
+  for (int i = 0; i < lineToRead + 1; i++)
   {
     fgets(buffer, 1024, csvReader);
   }
@@ -297,13 +331,13 @@ char *GetLineFromFile(int lineToRead)
 Player GetPlayerFromLine(char *player)
 {
   char *buffer;
-  int lineToRead = atoi(player);
-  buffer = GetLineFromFile(lineToRead); //blocao contendo todos os dados da linha que representa um jogador
+  buffer = GetLineFromFile(atoi(player)); //blocao contendo todos os dados da linha que representa um jogador
   char *test = Replace(buffer, ",,", ",nao informado,");
   char *final = Replace(test, ",\n", ",nao informado\n");
   free(test);
   return GetPlayerFromFile(final);
 }
+
 bool IsAble(char *_word)
 {
   bool valueToReturn = false;
@@ -314,37 +348,6 @@ bool IsAble(char *_word)
   return valueToReturn;
 }
 
-char *Replace(char const *const original, char const *const pattern, char const *const replacement)
-{
-  size_t const replen = strlen(replacement);
-  size_t const patlen = strlen(pattern);
-  size_t const orilen = strlen(original);
-  size_t patcnt = 0;
-  const char *oriptr;
-  const char *patloc;
-  for (oriptr = original; patloc = strstr(oriptr, pattern); oriptr = patloc + patlen)
-  {
-    patcnt++;
-  }
-  {
-    size_t const retlen = orilen + patcnt * (replen - patlen);
-    char *const returned = (char *)malloc(sizeof(char) * (retlen + 1));
-    if (returned != NULL)
-    {
-      char *retptr = returned;
-      for (oriptr = original; patloc = strstr(oriptr, pattern); oriptr = patloc + patlen)
-      {
-        size_t const skplen = patloc - oriptr;
-        strncpy(retptr, oriptr, skplen);
-        retptr += skplen;
-        strncpy(retptr, replacement, replen);
-        retptr += replen;
-      }
-      strcpy(retptr, oriptr);
-    }
-    return returned;
-  }
-}
 // < ------------ DATA STRUCTURES   ------------ >
 
 //PILHAFLEX
@@ -382,6 +385,7 @@ Player RemoveStack()
   tmp->prox = NULL;
   free(tmp);
   tmp = NULL;
+  printf("(R) %s\n", resp.name);
   return resp;
 }
 
@@ -433,6 +437,7 @@ Player FlexQueueRemove()
   tmp->prox = NULL;
   free(tmp);
   tmp = NULL;
+  printf("(R) %s\n", resp.name);
   return resp;
 }
 
@@ -455,54 +460,54 @@ void FlexQueueShow()
 */
 void HandleComand(char *word)
 { //So vou ter Fila e Lista Flex ou Static
-  char *command = Split(&word, " ");
-  if (Equals(command, "II"))
+  char *command = Split(&word);
+  if (command[0] == 'I' && command[1] == 'I')
   {
     //LISta
-    ListInsertBegin(GetPlayerFromLine(Split(&word, " ")));
+    ListInsertBegin(GetPlayerFromLine(Split(&word)));
   }
-  else if (Equals(command, "IF"))
+  else if (command[0] == 'I' && command[1] == 'F')
   {
     //LISta
-    ListInsertEnd(GetPlayerFromLine(Split(&word, " ")));
+    ListInsertEnd(GetPlayerFromLine(Split(&word)));
   }
-  else if (Equals(command, "I*"))
+  else if (command[0] == 'I' && command[1] == '*')
   {
     //LISta
-    ListInsert(GetPlayerFromLine(Split(&word, " ")), atoi(Split(&word, " ")));
+    ListInsert(GetPlayerFromLine(Split(&word)), atoi(Split(&word)));
   }
-  if (Equals(command, "RI"))
+  else if (command[0] == 'R' && command[1] == 'I')
   {
     //LISta
     ListRemoveBegin();
   }
-  else if (Equals(command, "RF"))
+  else if (command[0] == 'R' && command[1] == 'F')
   {
     //LISta
     ListRemoveEnd();
   }
-  else if (Equals(command, "R*"))
+  else if (command[0] == 'R' && command[1] == '*')
   {
     //LISta
-    ListRemove(atoi(Split(&word, " ")));
+    ListRemove(atoi(Split(&word)));
   }
-  else if (Equals(command, "I"))
+  else if (command[0] == 'I')
   {
     //FILA
     if (Exercise == 10)
     { //Pilha Flexivel
-      InsertStack(GetPlayerFromLine(Split(&word, " ")));
+      InsertStack(GetPlayerFromLine(Split(&word)));
     }
     else if (Exercise == 7)
     {
-      FlexQueueInsert(GetPlayerFromLine(Split(&word, " ")));
+      FlexQueueInsert(GetPlayerFromLine(Split(&word)));
     }
     else
     {
-      QueueInsert(GetPlayerFromLine(Split(&word, " ")));
+      QueueInsert(GetPlayerFromLine(Split(&word)));
     }
   }
-  else if (Equals(command, "R"))
+  else if (command[0] == 'R')
   {
     //FILA
     if (Exercise == 10)
@@ -517,6 +522,10 @@ void HandleComand(char *word)
     {
       QueueRemove();
     }
+  }
+  else
+  {
+    printf("O comando %s não foi entendido!\n", command);
   }
 }
 
@@ -589,7 +598,7 @@ int main()
     }
     scanf("%[^\n]%*c", word);
   } while (!controller); //END OF FIRST ITERATION
-  scanf("%[^\n]%*c", word);
+  // scanf("%[^\n]%*c", word);
   int amount = atoi(word);
   for (int i = 0; i < amount; i++)
   {
