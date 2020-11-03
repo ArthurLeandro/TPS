@@ -10,7 +10,7 @@
 
 // < ------------ DECLARATION METHODS   ------------ >
 
-int Exercise = 2;
+int Exercise = 10;
 
 typedef struct Players
 {
@@ -96,7 +96,7 @@ char *Replace(char const *const original, char const *const pattern, char const 
 
 void PrintPlayer(Player *player)
 {
-  printf("[%d ## %s ## %d ## %d ## %s ## %s ## %s ## %s]\n", player->id, player->name, player->heigth, player->weigth, player->birthYear, player->university, player->birthCity, player->birthState);
+  printf("## %s ## %d ## %d ## %s ## %s ## %s ## %s\n", player->name, player->heigth, player->weigth, player->birthYear, player->university, player->birthCity, player->birthState);
 }
 
 /**
@@ -197,6 +197,7 @@ void ListShow()
 {
   for (int i = 0; i < n; i++)
   {
+    printf("[%i] ", i);
     PrintPlayer(&array[i]); // !Passivel de !Error
   }
 }
@@ -215,15 +216,17 @@ void QueueStart()
   MAXTAM = 5;
 }
 
-/**
- * Insere um elemento na ultima posicao da 
- * @param x int elemento a ser inserido.
- * @Se a fila estiver cheia.
- */
-void QueueInsert(Player x)
+void HeightAverage()
 {
-  array[ultimo] = x;
-  ultimo = (ultimo + 1) % MAXTAM;
+  float summation = 0.0f;
+  int i = primeiro;
+  while (i != ultimo)
+  {
+    summation += array[i].heigth;
+    i = (i + 1) % 6;
+  }
+  int divider = (primeiro > ultimo || ultimo == 0) ? 5 : ultimo;
+  printf("%.f\n", roundf(summation / divider));
 }
 
 /**
@@ -235,9 +238,24 @@ void QueueInsert(Player x)
 Player QueueRemove()
 {
   Player resp = array[primeiro];
-  primeiro = (primeiro + 1) % MAXTAM;
-  printf("(R) %s\n", resp.name);
+  primeiro = (primeiro + 1) % 6;
   return resp;
+}
+
+/**
+ * Insere um elemento na ultima posicao da 
+ * @param x int elemento a ser inserido.
+ * @Se a fila estiver cheia.
+ */
+void QueueInsert(Player x)
+{
+  if (((ultimo + 1) % 6) == primeiro)
+  {
+    QueueRemove();
+  }
+  array[ultimo] = x;
+  ultimo = (ultimo + 1) % 6;
+  HeightAverage();
 }
 
 /**
@@ -245,8 +263,9 @@ Player QueueRemove()
  */
 void QueueShow()
 {
-  for (int i = primeiro; i != ultimo; i = ((i + 1) % MAXTAM))
+  for (int i = primeiro - 1, j = 0; i < ultimo; i++, j++)
   {
+    printf("[%i] ", j);
     PrintPlayer(&array[i]);
   }
 }
@@ -319,7 +338,7 @@ char *GetLineFromFile(int lineToRead)
   FILE *csvReader = fopen("/tmp/players.csv", "r");
   static char buffer[1024];
   fgets(buffer, 1024, csvReader);
-  for (int i = 0; i < lineToRead + 1; i++)
+  for (int i = 0; i < lineToRead; i++)
   {
     fgets(buffer, 1024, csvReader);
   }
@@ -360,7 +379,13 @@ void FlexStackStart()
 {
   topo = NULL;
 }
-
+int FlexStackSize()
+{
+  int valueToReturn = 0;
+  for (Celula *i = topo; i != NULL; i = i->prox, valueToReturn++)
+    ;
+  return valueToReturn;
+}
 /**
  * Insere elemento na pilha (politica FILO).
  * @param x int elemento a inserir.
@@ -388,31 +413,73 @@ Player RemoveStack()
   printf("(R) %s\n", resp.name);
   return resp;
 }
+void FlexShowStack(Celula *i, int j)
+{
+  j -= 1;
+  if (i != NULL)
+  {
+    FlexShowStack(i->prox, j);
+    printf("[%i] ", j);
+    PrintPlayer(&i->elemento); // ! Passivel de erro CHECK LATER
+  }
+}
+
 
 /**
  * Mostra os elementos separados por espacos, comecando do topo.
  */
 void ShowStack()
 {
-  Celula *i;
-  for (i = topo; i != NULL; i = i->prox)
-  {
-    PrintPlayer(&i->elemento); // ! Passivel de erro CHECK LATER
-  }
+  FlexShowStack(topo, FlexStackSize());
 }
-
 // < ------------ SORTING    ------------ >
 Celula *firstInLine;
 Celula *lastInLine;
 
+int FlexQueuSize()
+{
+  int valueToReturn = 0;
+  for (Celula *i = firstInLine; i != lastInLine; i = i->prox, valueToReturn++)
+    ;
+  return valueToReturn;
+}
 /**
  * Cria uma fila sem elementos (somente no cabeca).
  */
 void FlexQueueStart()
 {
   Player nothing;
+  nothing.id = -5;
   firstInLine = novaCelula(nothing);
   lastInLine = firstInLine;
+}
+
+void HeightAverageFlex()
+{
+  float summation = 0.0f;
+  Celula *i = firstInLine->prox;
+  while (i != lastInLine->prox)
+  {
+    summation += i->elemento.heigth;
+    i = i->prox;
+  }
+  int divider = FlexQueuSize();
+  printf("%.f\n", roundf(summation / divider));
+}
+/**
+ * Remove elemento da fila (politica FIFO).
+ * @return Elemento removido.
+ */
+Player FlexQueueRemove()
+{
+  Celula *tmp = firstInLine;
+  lastInLine->prox = firstInLine->prox;
+  firstInLine = firstInLine->prox;
+  Player resp = firstInLine->elemento;
+  tmp->prox = NULL;
+  free(tmp);
+  tmp = NULL;
+  return resp;
 }
 
 /**
@@ -421,24 +488,21 @@ void FlexQueueStart()
  */
 void FlexQueueInsert(Player x)
 {
-  lastInLine->prox = novaCelula(x);
-  lastInLine = lastInLine->prox;
-}
-
-/**
- * Remove elemento da fila (politica FIFO).
- * @return Elemento removido.
- */
-Player FlexQueueRemove()
-{
-  Celula *tmp = firstInLine;
-  firstInLine = firstInLine->prox;
-  Player resp = firstInLine->elemento;
-  tmp->prox = NULL;
-  free(tmp);
-  tmp = NULL;
-  printf("(R) %s\n", resp.name);
-  return resp;
+  if (firstInLine == NULL)
+  {
+    FlexQueueStart();
+  }
+  else
+  {
+    if (FlexQueuSize() == 5)
+    {
+      FlexQueueRemove();
+    }
+    lastInLine->prox = novaCelula(x);
+    lastInLine = lastInLine->prox;
+    lastInLine->prox = firstInLine;
+  }
+  HeightAverageFlex();
 }
 
 /**
@@ -446,8 +510,10 @@ Player FlexQueueRemove()
  */
 void FlexQueueShow()
 {
-  for (Celula *i = firstInLine->prox; i != NULL; i = i->prox)
+  int index = 0;
+  for (Celula *i = firstInLine->prox; i != lastInLine->prox; i = i->prox, index++)
   {
+    printf("[%i] ", index);
     PrintPlayer(&i->elemento);
   }
 }
@@ -516,11 +582,13 @@ void HandleComand(char *word)
     }
     else if (Exercise == 7)
     {
-      FlexQueueRemove();
+      Player resp = FlexQueueRemove();
+      printf("(R) %s\n", resp.name);
     }
     else
     {
-      QueueRemove();
+      Player resp = QueueRemove();
+      printf("(R) %s\n", resp.name);
     }
   }
   else
@@ -541,18 +609,24 @@ void Insert(bool isStatic, Player x)
 {
   if (isStatic)
   {
-    array[n] = x;
-    n++;
+    if (Exercise == 2)
+    {
+      array[n] = x;
+      n++;
+    }
+    else
+    {
+      QueueInsert(x);
+    }
   }
   else
   { //PILHA (10) || FILA
     if (Exercise == 10)
     {
-      QueueInsert(x);
+      InsertStack(x);
     }
     else if (Exercise == 7)
     {
-
       FlexQueueInsert(x);
     }
     else
@@ -589,6 +663,9 @@ int main()
   bool controller = false;
   scanf("%[^\n]%*c", word);
   bool isStatic = Exercise == 2 || Exercise == 4;
+  QueueStart();
+  FlexQueueStart();
+  FlexStackStart();
   do
   {
     controller = IsAble(word);

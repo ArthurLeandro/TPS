@@ -24,10 +24,10 @@ interface AED {
 // #region MAIN
 public class TP3 {
   public static void main(String[] args) {
-    int EXERCISE_NUMBER = 3;
+    int EXERCISE_NUMBER = 6;
     boolean controller = false;
     String word = "";
-    Utilitary util = new Utilitary(EXERCISE_NUMBER == 1 || EXERCISE_NUMBER == 3);
+    Utilitary util = new Utilitary(EXERCISE_NUMBER == 1 || EXERCISE_NUMBER == 3, EXERCISE_NUMBER);
     Scanner reader = new Scanner(System.in);
     do {
       word = reader.nextLine();
@@ -36,12 +36,9 @@ public class TP3 {
         util.Insert(util.CreateNewPlayerFromFile(word));
       }
     } while (!controller);
-    for (Player s : util.array) {
-      s.PrintPlayer();
-    }
     int amount = reader.nextInt();
     util.InitValuesOnStructure(EXERCISE_NUMBER);
-    for (int i = 0; i < amount; i++) {
+    for (int i = 0; i < amount + 1; i++) {
       util.HandleExercise(EXERCISE_NUMBER, reader.nextLine());
     }
     util.ShowStructure(EXERCISE_NUMBER);
@@ -62,14 +59,14 @@ class Utilitary {
   ListaFlex listFlex;
   PilhaFlex stackFlex;
 
-  public Utilitary(boolean isStatic) {
+  public Utilitary(boolean isStatic, int exercise) {
     lastValidPosition = 0;
     this.isStatic = isStatic;
     if (isStatic)
       array = new Player[600];
-    else
-      last = structure = new Celula(null);
-
+    else {
+      structure = last = null;
+    }
   }
 
   public Player CreateNewPlayerFromFile(String valueToRead) {
@@ -122,8 +119,13 @@ class Utilitary {
       this.array[lastValidPosition] = playerToInsert;
       lastValidPosition++;
     } else {
-      last = new Celula(playerToInsert);
-      last = last.prox;
+      if (structure == null) {
+        structure = new Celula(playerToInsert);
+        last = structure;
+      } else {
+        last.prox = new Celula(playerToInsert);
+        last = last.prox;
+      }
     }
   }
 
@@ -163,11 +165,11 @@ class Utilitary {
       case "I":
         dataStructure.inserirInicio(CreateNewPlayerFromFile(splitted[1]));
         break;
-      case "R":
+      case "R ":
         dataStructure.removerFim();
         break;
-      default:
-        System.out.println("Não foi possível concluir a operação requisitada em questão");
+      case "R":
+        dataStructure.removerFim();
         break;
     }
   }
@@ -178,7 +180,7 @@ class Utilitary {
     } else if (exercise == 3) {
       stack = new Pilha(array, lastValidPosition);
     } else if (exercise == 5) {
-      listFlex = new ListaFlex(this.structure);
+      listFlex = new ListaFlex(this.structure, last);
     } else if (exercise == 6) {
       stackFlex = new PilhaFlex(this.structure);
     }
@@ -310,7 +312,7 @@ class Player {
     stringBuilder.append(getBirthCity());
     stringBuilder.append(" ## ");
     stringBuilder.append(getBirthState());
-    stringBuilder.append("##");
+    stringBuilder.append(" ## ");
     System.out.println(stringBuilder.toString());
   }
 
@@ -517,9 +519,9 @@ class Pilha implements AED {
    * Mostra os array separados por espacos.
    */
   public void mostrar() {
-    for (int i = ultimo; i < array.length; i++) {
-      System.out.print("[" + i + "]");
-      // array[i].PrintPlayer();
+    for (int i = primeiro; i < ultimo; i++) {
+      System.out.print("[" + (i - primeiro) + "]");
+      array[i].PrintPlayer();
     }
   }
 
@@ -552,8 +554,8 @@ class Pilha implements AED {
 
   @Override
   public Player removerFim() {
-    Player resp = array[primeiro];
-    primeiro = (primeiro + 1) % array.length;
+    Player resp = array[--ultimo];
+    System.out.println("(R) " + resp.getName());
     return resp;
   }
 
@@ -592,13 +594,10 @@ class ListaFlex implements AED {
     ultimo = primeiro;
   }
 
-  public ListaFlex(Celula fullList) {
-    primeiro = fullList;
-    ultimo = fullList.prox;
-    while (ultimo.prox != null) {
-      ultimo = fullList.prox;
-    }
-
+  public ListaFlex(Celula fullList, Celula last) {
+    primeiro = new Celula(null);
+    primeiro.prox = fullList;
+    ultimo = last;
   }
 
   /**
@@ -722,7 +721,7 @@ class ListaFlex implements AED {
   public void mostrar() {
     int j = 0;
     for (Celula i = primeiro.prox; i != null; i = i.prox, j++) {
-      System.out.println("[" + j + "]");
+      System.out.print("[" + j + "]");
       i.elemento.PrintPlayer();
     }
   }
@@ -769,7 +768,8 @@ class PilhaFlex implements AED {
   }
 
   public PilhaFlex(Celula alreadyDefinedStack) {
-    topo = alreadyDefinedStack;
+    // topo = alreadyDefinedStack;
+    topo = Invert(alreadyDefinedStack);
   }
 
   /**
@@ -804,11 +804,38 @@ class PilhaFlex implements AED {
    * Mostra os elementos separados por espacos, comecando do topo.
    */
   public void mostrar() {
-    int j = 0;
-    for (Celula i = topo; i != null; i = i.prox, j++) {
-      System.out.print("[" + j + "] ");
-      i.elemento.PrintPlayer();
+    InvertStack(topo, Size(topo));
+  }
+
+  private void InvertStack(Celula top, int index) {
+    index -= 1;
+    if (top != null) {
+      InvertStack(top.prox, index);
+      System.out.print("[" + index + "]");
+      top.elemento.PrintPlayer();
     }
+  }
+
+  private Celula Invert(Celula list) {
+    Celula prev = null;
+    Celula current = list;
+    Celula next = null;
+    while (current != null) {
+      next = current.prox;
+      current.prox = prev;
+      prev = current;
+      current = next;
+    }
+    list = prev;
+    return list;
+  }
+
+  public int Size(Celula top) {
+    int valueToReturn = 0;
+    if (top != null) {
+      valueToReturn += 1 + Size(top.prox);
+    }
+    return valueToReturn;
   }
 
   @Override
