@@ -4,6 +4,24 @@ import java.time.*;
 
 public class ListaDupla {
 
+  public static void main(String[] args) {
+    boolean controller = false;
+    String word = "";
+    Utilitary util = new Utilitary();
+    Scanner reader = new Scanner(System.in);
+    Dupla list = new Dupla(util.CreateNewPlayerFromFile(reader.nextLine()));
+    do {
+      word = reader.nextLine();
+      controller = util.IsAble(word);
+      if (!controller) {
+        list.inserirFim(util.CreateNewPlayerFromFile(word));
+      }
+    } while (!controller);
+    reader.close();
+    list.indexEveryOne();
+    util.quicksort(list);
+    // list.mostrarI();
+  }
 }
 
 class Player {
@@ -145,14 +163,14 @@ class CelulaDupla {
   public CelulaDupla(Player elemento) {
     this.elemento = elemento;
     this.ant = this.prox = null;
-    this.index = index;
+    this.index = 0;
   }
 
 }
 
 class Dupla {
-  private CelulaDupla primeiro;
-  private CelulaDupla ultimo;
+  CelulaDupla primeiro;
+  CelulaDupla ultimo;
 
   /**
    * Construtor da classe que cria uma lista dupla sem elementos (somente no
@@ -163,22 +181,9 @@ class Dupla {
     ultimo = primeiro;
   }
 
-  /**
-   * Insere um elemento na primeira posicao da lista.
-   * 
-   * @param x int elemento a ser inserido.
-   */
-  public void inserirInicio(Player x) {
-    CelulaDupla tmp = new CelulaDupla(x);
-    tmp.ant = primeiro;
-    tmp.prox = primeiro.prox;
-    primeiro.prox = tmp;
-    if (primeiro == ultimo) {
-      ultimo = tmp;
-    } else {
-      tmp.prox.ant = tmp;
-    }
-    tmp = null;
+  public Dupla(Player x) {
+    primeiro = new CelulaDupla(x);
+    ultimo = primeiro;
   }
 
   /**
@@ -193,116 +198,6 @@ class Dupla {
   }
 
   /**
-   * Remove um elemento da primeira posicao da lista.
-   * 
-   * @return resp int elemento a ser removido.
-   * @throws Exception Se a lista nao contiver elementos.
-   */
-  public Player removerInicio() {
-    CelulaDupla tmp = primeiro;
-    primeiro = primeiro.prox;
-    Player resp = primeiro.elemento;
-    tmp.prox = primeiro.ant = null;
-    tmp = null;
-    return resp;
-  }
-
-  /**
-   * Remove um elemento da ultima posicao da lista.
-   * 
-   * @return resp int elemento a ser removido.
-   * @throws Exception Se a lista nao contiver elementos.
-   */
-  public Player removerFim() {
-    Player resp = ultimo.elemento;
-    ultimo = ultimo.ant;
-    ultimo.prox.ant = null;
-    ultimo.prox = null;
-    return resp;
-  }
-
-  /**
-   * Insere um elemento em uma posicao especifica considerando que o primeiro
-   * elemento valido esta na posicao 0.
-   * 
-   * @param x   int elemento a ser inserido.
-   * @param pos int posicao da insercao.
-   * @throws Exception Se <code>posicao</code> invalida.
-   */
-  public void inserir(Player x, int pos) throws Exception {
-    int tamanho = tamanho();
-    if (pos < 0 || pos > tamanho) {
-      throw new Exception("Erro ao inserir posicao (" + pos + " / tamanho = " + tamanho + ") invalida!");
-    } else if (pos == 0) {
-      inserirInicio(x);
-    } else if (pos == tamanho) {
-      inserirFim(x);
-    } else {
-      // Caminhar ate a posicao anterior a insercao
-      CelulaDupla i = primeiro;
-      for (int j = 0; j < pos; j++, i = i.prox)
-        ;
-      CelulaDupla tmp = new CelulaDupla(x);
-      tmp.ant = i;
-      tmp.prox = i.prox;
-      tmp.ant.prox = tmp.prox.ant = tmp;
-      tmp = i = null;
-    }
-  }
-
-  /**
-   * Remove um elemento de uma posicao especifica da lista considerando que o
-   * primeiro elemento valido esta na posicao 0.
-   * 
-   * @param posicao Meio da remocao.
-   * @return resp int elemento a ser removido.
-   * @throws Exception Se <code>posicao</code> invalida.
-   */
-  public Player remover(int pos) throws Exception {
-    Player resp;
-    int tamanho = tamanho();
-    if (primeiro == ultimo) {
-      throw new Exception("Erro ao remover (vazia)!");
-    } else if (pos < 0 || pos >= tamanho) {
-      throw new Exception("Erro ao remover (posicao " + pos + " / " + tamanho + " invalida!");
-    } else if (pos == 0) {
-      resp = removerInicio();
-    } else if (pos == tamanho - 1) {
-      resp = removerFim();
-    } else {
-      // Caminhar ate a posicao anterior a insercao
-      CelulaDupla i = primeiro.prox;
-      for (int j = 0; j < pos; j++, i = i.prox)
-        ;
-      i.ant.prox = i.prox;
-      i.prox.ant = i.ant;
-      resp = i.elemento;
-      i.prox = i.ant = null;
-      i = null;
-    }
-
-    return resp;
-  }
-
-  /**
-   * Procura um elemento e retorna se ele existe.
-   * 
-   * @param x Elemento a pesquisar.
-   * @return <code>true</code> se o elemento existir, <code>false</code> em caso
-   *         contrario.
-   */
-  public boolean pesquisar(Player x) {
-    boolean resp = false;
-    for (CelulaDupla i = primeiro.prox; i != null; i = i.prox) {
-      if (i.elemento == x) {
-        resp = true;
-        i = ultimo;
-      }
-    }
-    return resp;
-  }
-
-  /**
    * Calcula e retorna o tamanho, em numero de elementos, da lista.
    * 
    * @return resp int tamanho
@@ -314,30 +209,30 @@ class Dupla {
     return tamanho;
   }
 
+  public void mostrar() {
+    for (CelulaDupla i = primeiro; i != null; i = i.prox) {
+      i.elemento.PrintPlayer();
+    }
+  }
+
+  public void mostrarI() {
+    for (CelulaDupla i = primeiro; i.prox != null; i = i.prox) {
+      System.out.println(i.index);
+    }
+  }
+
+  public void indexEveryOne() {
+    int tamanho = 0;
+    for (CelulaDupla i = primeiro; i != ultimo; i = i.prox, tamanho++) {
+      i.index = tamanho;
+    }
+    ultimo.index = tamanho;// tamanho +1
+  }
+
 }
 
 // #region UTILS
 class Utilitary {
-  Player[] array;
-  Celula structure, last;
-  boolean isStatic;
-  int lastValidPosition;
-
-  Lista list;
-  Pilha stack;
-  ListaFlex listFlex;
-  PilhaFlex stackFlex;
-
-  public Utilitary(boolean isStatic) {
-    lastValidPosition = 0;
-    this.isStatic = isStatic;
-    if (isStatic)
-      array = new Player[600];
-    else
-      last = structure = new Celula(null);
-
-  }
-
   public Player CreateNewPlayerFromFile(String valueToRead) {
     Player valueToReturn = null;
     try {
@@ -382,34 +277,60 @@ class Utilitary {
     }
   }
 
+  Player GetHalfOfTwoEndPoints(CelulaDupla left, CelulaDupla right) {
+    CelulaDupla aux = left.prox;
+    for (int i = left.index; i < ((left.index + right.index) / 2); i++) {
+      aux = aux.prox;
+    }
+    return aux.elemento;
+  }
+
   private void quicksort(CelulaDupla esq, CelulaDupla dir) {
     CelulaDupla i = esq, j = dir;
-    int pivoPos = (dir.index + esq.index) / 2;
-    CelulaDupla pivo = esq;
-    for (int k = esq.index; k < pivoPos; k++) {
-      pivo = pivo.prox;
-    }
-    while (i.index <= j.index) {
-      while (i.elemento.getBirthState().compareTo(pivo.elemento.getBirthState()) < 0)
-        i = i.prox;
-      while (j.elemento.getBirthState().compareTo(pivo.elemento.getBirthState()) > 0)
-        j = j.ant;
+    Player pivo = GetHalfOfTwoEndPoints(esq, dir);
+    // System.out.println("i: " + i.index + "\tj: " + j.index);
+    while (i != null && j != null && i.index <= j.index) {
+      while (i.elemento.getBirthState().compareTo(pivo.getBirthState()) < 0
+          || i.elemento.getBirthState().compareTo(pivo.getBirthState()) == 0
+              && i.elemento.getName().compareTo(pivo.getName()) < 0) {
+        if (i.prox != null) {
+          i = i.prox;
+        } else {
+          break;
+        }
+      }
+      while (j.elemento.getBirthState().compareTo(pivo.getBirthState()) > 0
+          || j.elemento.getBirthState().compareTo(pivo.getBirthState()) == 0
+              && j.elemento.getName().compareTo(pivo.getName()) > 0) {
+        if (j.ant != null) {
+          j = j.ant;
+        } else {
+          break;
+        }
+      }
       if (i.index <= j.index) {
         swap(i, j);
         i = i.prox;
         j = j.ant;
       }
     }
-    if (esq.index < j.index)
+    if (esq != null && j != null && esq.index < j.index)
       quicksort(esq, j);
-    if (i.index < dir.index)
+    if (i != null && dir != null && i.index < dir.index)
       quicksort(i, dir);
   }
 
+  public void quicksort(Dupla list) {
+    quicksort(list.primeiro, list.ultimo);
+    list.mostrar();
+  }
+
   public void swap(CelulaDupla i, CelulaDupla j) {
-    Player temp = i.elemento;
-    i.elemento = j.elemento;
-    j.elemento = temp;
+    if (i != null && j != null && i.index != j.index) {
+      Player temp = i.elemento;
+      i.elemento = j.elemento;
+      j.elemento = temp;
+    }
   }
 
 }
