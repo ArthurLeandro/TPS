@@ -20,8 +20,19 @@ interface AED {
 
 public class TP4 {
   public static void main(String[] args) {
-    AED structure = new ArvoreBinaria();
-
+    int EXERCISE_NUMBER = 1;
+    AED structure = GetStructureBasedOnExerciseNumber(EXERCISE_NUMBER);
+    boolean controller = false;
+    String word = "";
+    Scanner reader = new Scanner(System.in);
+    do {
+      word = reader.nextLine();
+      controller = util.IsAble(word);
+      if (!controller) {
+        util.Insert(util.CreateNewPlayerFromFile(word));
+        structure.inserir(CreateNew);
+      }
+    } while (!controller);
   }
 
   public static AED GetStructureBasedOnExerciseNumber(int exercise) {
@@ -37,6 +48,50 @@ public class TP4 {
     }
 
     return valueToReturn;
+  }
+
+  public static Player CreateNewPlayerFromFile(String valueToRead) {
+    Player valueToReturn = null;
+    try {
+      Scanner csvReader = new Scanner(new File("/tmp/players.csv"));
+      int lineToread = Integer.parseInt(valueToRead);
+      String auxWord = "";
+      for (int i = 0; i < lineToread + 2; i++) {
+        auxWord = csvReader.nextLine();
+      }
+      csvReader.close();
+      String[] splitted = auxWord.split(",");
+      splitted = FixEntry(splitted);
+      valueToReturn = new Player(splitted);
+    } catch (Exception e) {
+      System.out.println("Erro ao criar o jogador: ");
+    }
+    return valueToReturn;
+  }
+
+  public static boolean IsAble(String _word) {
+    return _word.charAt(0) == ('F') && _word.charAt(1) == ('I') && _word.charAt(2) == ('M');
+  }
+
+  public static String[] FixEntry(String[] word) {
+    if (word.length != 8) {
+      String[] valueToReturn = new String[8];
+      String NULO = "nao informado";
+      for (int i = 0; i < word.length; i++) {
+        if (!word[i].equals(""))
+          valueToReturn[i] = word[i];
+        else
+          valueToReturn[i] = NULO;
+      }
+      if (word.length != 8) {
+        for (int i = word.length; i < valueToReturn.length; i++) {
+          valueToReturn[i] = NULO;
+        }
+      }
+      return valueToReturn;
+    } else {
+      return word;
+    }
   }
 
 }
@@ -534,6 +589,24 @@ class Alvinegra implements AED {
 class BinariaDeBinaria implements AED {
 
   public BlackNo raiz;
+
+  public BinariaDeBinaria() {
+    raiz = new BlackNo(7);
+    raiz.right = new BlackNo(11);
+    raiz.left = new BlackNo(3);
+    raiz.right.right = new BlackNo(13);
+    raiz.right.left = new BlackNo(9);
+    raiz.left.right = new BlackNo(5);
+    raiz.left.left = new BlackNo(1);
+    raiz.left.left.right = new BlackNo(2);
+    raiz.left.left.left = new BlackNo(0);
+    raiz.left.right.right = new BlackNo(6);
+    raiz.left.right.left = new BlackNo(4);
+    raiz.right.left.right = new BlackNo(10);
+    raiz.right.left.left = new BlackNo(8);
+    raiz.right.right.right = new BlackNo(14);
+    raiz.right.right.left = new BlackNo(12);
+  }
 
   public BinariaDeBinaria(int n) {
     raiz = new BlackNo(n);
