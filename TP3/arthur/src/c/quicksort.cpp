@@ -84,7 +84,7 @@ void PrintPlayer(Player *player)
 void mostrar()
 {
   CelulaDupla *i;
-  for (i = primeiro->prox; i != NULL; i = i->prox)
+  for (i = primeiro; i != NULL; i = i->prox)
   {
     PrintPlayer(&(i->elemento));
   }

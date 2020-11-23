@@ -10,7 +10,7 @@
 
 // < ------------ DECLARATION METHODS   ------------ >
 
-int Exercise = 10;
+int Exercise = 8;
 
 typedef struct Players
 {
@@ -96,7 +96,7 @@ char *Replace(char const *const original, char const *const pattern, char const 
 
 void PrintPlayer(Player *player)
 {
-  printf("## %s ## %d ## %d ## %s ## %s ## %s ## %s\n", player->name, player->heigth, player->weigth, player->birthYear, player->university, player->birthCity, player->birthState);
+  printf("## %s ## %d ## %d ## %s ## %s ## %s ## %s ##\n", player->name, player->heigth, player->weigth, player->birthYear, player->university, player->birthCity, player->birthState);
 }
 
 /**
@@ -263,7 +263,7 @@ void QueueInsert(Player x)
  */
 void QueueShow()
 {
-  for (int i = primeiro - 1, j = 0; i < ultimo; i++, j++)
+  for (int i = primeiro, j = 0; i < ultimo; i++, j++)
   {
     printf("[%i] ", j);
     PrintPlayer(&array[i]);
@@ -423,7 +423,6 @@ void FlexShowStack(Celula *i, int j)
     PrintPlayer(&i->elemento); // ! Passivel de erro CHECK LATER
   }
 }
-
 
 /**
  * Mostra os elementos separados por espacos, comecando do topo.
