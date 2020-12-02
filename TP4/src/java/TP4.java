@@ -9,30 +9,54 @@ interface AED {
 
   public void inserir(Player pos);
 
-  public void remover(Player pos);
+  public void remover(String pos);
 
-  public boolean search(Object toSearch);
+  public boolean search(String toSearch);
 
-  public boolean searchPrinting(Object toSearch);
+  public boolean searchPrinting(String toSearch);
 
   public void mostrar();
 }
 
 public class TP4 {
   public static void main(String[] args) {
-    int EXERCISE_NUMBER = 1;
+    int EXERCISE_NUMBER = 2;
     AED structure = GetStructureBasedOnExerciseNumber(EXERCISE_NUMBER);
     boolean controller = false;
     String word = "";
     Scanner reader = new Scanner(System.in);
     do {
       word = reader.nextLine();
-      controller = util.IsAble(word);
+      controller = IsAble(word);
       if (!controller) {
-        util.Insert(util.CreateNewPlayerFromFile(word));
-        structure.inserir(CreateNew);
+        Player util = CreateNewPlayerFromFile(word);
+        // if (!structure.search(util.getName()))
+        structure.inserir(util);
       }
     } while (!controller);
+    boolean resp = false;
+    do {
+      word = reader.nextLine();
+      controller = IsAble(word);
+      if (!controller) {
+        if (EXERCISE_NUMBER == 5) {
+          if (!structure.search(word)) {
+            structure.search(word);
+          }
+        } else {
+          System.out.print(word + " raiz");
+          resp = structure.searchPrinting(word);
+          if (!resp)
+            System.out.println(" NAO");
+          else
+            System.out.println(" SIM");
+        }
+      }
+    } while (!controller);
+    if (EXERCISE_NUMBER == 5) {
+      structure.mostrar();
+    }
+    reader.close();
   }
 
   public static AED GetStructureBasedOnExerciseNumber(int exercise) {
@@ -46,7 +70,6 @@ public class TP4 {
     } else {
       valueToReturn = new Trie();
     }
-
     return valueToReturn;
   }
 
@@ -192,21 +215,21 @@ class Player {
 
   public void PrintPlayer() {
     StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append(" ## ");
+    // stringBuilder.append(" ## ");
     stringBuilder.append(getName());
-    stringBuilder.append(" ## ");
-    stringBuilder.append(getHeigth());
-    stringBuilder.append(" ## ");
-    stringBuilder.append(getWeigth());
-    stringBuilder.append(" ## ");
-    stringBuilder.append(getBirthYear());
-    stringBuilder.append(" ## ");
-    stringBuilder.append(getUniversity());
-    stringBuilder.append(" ## ");
-    stringBuilder.append(getBirthCity());
-    stringBuilder.append(" ## ");
-    stringBuilder.append(getBirthState());
-    stringBuilder.append(" ## ");
+    // stringBuilder.append(" ## ");
+    // stringBuilder.append(getHeigth());
+    // stringBuilder.append(" ## ");
+    // stringBuilder.append(getWeigth());
+    // stringBuilder.append(" ## ");
+    // stringBuilder.append(getBirthYear());
+    // stringBuilder.append(" ## ");
+    // stringBuilder.append(getUniversity());
+    // stringBuilder.append(" ## ");
+    // stringBuilder.append(getBirthCity());
+    // stringBuilder.append(" ## ");
+    // stringBuilder.append(getBirthState());
+    // stringBuilder.append(" ## ");
     System.out.println(stringBuilder.toString());
   }
 
@@ -269,43 +292,45 @@ class NoAN {
 // #region BST
 
 class ArvoreBinaria implements AED {
-  private No raiz; // Raiz da arvore.
+  public No raiz; // Raiz da arvore.
 
   public ArvoreBinaria() {
     raiz = null;
   }
 
   @Override
-  public boolean searchPrinting(Object x) {
-    Player aux = (Player) x;
-    return searchPrintingRec(aux, raiz);
+  public boolean searchPrinting(String x) {
+    return searchPrintingRec(x, raiz);
   }
 
-  private boolean searchPrintingRec(Player x, No i) {
+  private boolean searchPrintingRec(String x, No i) {
     boolean resp = false;
     if (i != null) {
-      int comparison = x.getName().compareTo(i.elemento.getName());
-      if (0 == comparison) {
-        resp = true;
-      } else if (0 > comparison) {
-        resp = searchPrintingRec(x, i.esq);
-      } else {
-        resp = searchPrintingRec(x, i.dir);
+      resp = x.compareTo(i.elemento.getName()) == 0;
+      if (!resp) {
+        System.out.print(" esq");
+        if (searchPrintingRec(x, i.esq)) {
+          resp = true;
+        } else {
+          System.out.print(" dir");
+          if (searchPrintingRec(x, i.dir)) {
+            resp = true;
+          }
+        }
       }
     }
     return resp;
   }
 
   @Override
-  public boolean search(Object x) {
-    Player aux = (Player) x;
-    return searchRec(aux, raiz);
+  public boolean search(String x) {
+    return searchRec(x, raiz);
   }
 
-  private boolean searchRec(Player x, No i) {
+  private boolean searchRec(String x, No i) {
     boolean resp = false;
     if (i != null) {
-      int comparison = x.getName().compareTo(i.elemento.getName());
+      int comparison = x.compareTo(i.elemento.getName());
       if (0 == comparison) {
         resp = true;
       } else if (0 > comparison) {
@@ -345,22 +370,20 @@ class ArvoreBinaria implements AED {
       i.esq = inserir(x, i.esq);
     } else if (0 < comparison) {
       i.dir = inserir(x, i.dir);
-    } else {
-      System.out.println("Erro ao inserir!");
     }
     return i;
   }
 
-  public void remover(Player x) {
+  public void remover(String x) {
     raiz = remover(x, raiz);
   }
 
-  private No remover(Player x, No i) {
+  private No remover(String x, No i) {
     int comparison = 0;
     if (i == null) {
       System.out.println("ERRO AO REMOVER");
     } else {
-      comparison = x.getName().compareTo(i.elemento.getName());
+      comparison = x.compareTo(i.elemento.getName());
     }
     if (0 > comparison) {
       i.esq = remover(x, i.esq);
@@ -392,7 +415,7 @@ class ArvoreBinaria implements AED {
 
 // #region ALVINEGRA
 class Alvinegra implements AED {
-  private NoAN raiz; // Raiz da arvore.
+  public NoAN raiz; // Raiz da arvore.
 
   public Alvinegra() {
     raiz = null;
@@ -523,20 +546,14 @@ class Alvinegra implements AED {
   }
 
   @Override
-  public void remover(Player pos) {
-    // TODO Auto-generated method stub
-  }
-
-  @Override
-  public boolean search(Object toSearch) {
-    String elemento = (String) toSearch;
-    return pesquisarRec(elemento, raiz);
+  public boolean search(String toSearch) {
+    return pesquisarRec(toSearch, raiz);
   }
 
   private boolean pesquisarRec(String elemento, NoAN i) {
     boolean resp = false;
     int comparison = 0;
-    if (i != null) {
+    if (i == null) {
       resp = false;
     } else {
       comparison = elemento.compareTo(i.elemento.getName());
@@ -546,33 +563,36 @@ class Alvinegra implements AED {
     } else if (comparison < 0) {
       resp = pesquisarRec(elemento, i.esq);
     } else {
-      resp = pesquisarRec(elemento, i.dir);
+      try {
+        resp = pesquisarRec(elemento, i.dir);
+      } catch (Exception e) {
+      }
     }
     return resp;
   }
 
   @Override
-  public boolean searchPrinting(Object toSearch) {
-    String elemento = (String) toSearch;
-    return searchPrintingRec(elemento, raiz);
+  public boolean searchPrinting(String toSearch) {
+    return searchPrintingRec(toSearch, raiz);
   }
 
   private boolean searchPrintingRec(String elemento, NoAN i) {
     boolean resp = false;
-    int comparison = 0;
+    int comparison;
     if (i != null) {
-      resp = false;
-    } else {
       comparison = elemento.compareTo(i.elemento.getName());
-    }
-    if (i != null && comparison == 0) {
-      resp = true;
-    } else if (comparison < 0) {
-      System.out.print("esq ");
-      resp = pesquisarRec(elemento, i.esq);
-    } else {
-      System.out.print("dir ");
-      resp = pesquisarRec(elemento, i.dir);
+      if (comparison == 0) {
+        resp = true;
+      } else if (comparison < 0) {
+        System.out.print(" esq");
+        resp = searchPrintingRec(elemento, i.esq);
+      } else {
+        try {
+          System.out.print(" dir");
+          resp = searchPrintingRec(elemento, i.dir);
+        } catch (Exception e) {
+        }
+      }
     }
     return resp;
   }
@@ -580,6 +600,12 @@ class Alvinegra implements AED {
   @Override
   public void mostrar() {
     // TODO Auto-generated method stub
+  }
+
+  @Override
+  public void remover(String pos) {
+    // TODO Auto-generated method stub
+
   }
 }
 
@@ -614,7 +640,7 @@ class BinariaDeBinaria implements AED {
 
   @Override
   public void inserir(Player pos) {
-    int calc = p.getHeigth() % 15;
+    int calc = pos.getHeigth() % 15;
     inserirRec(pos, raiz, calc);
   }
 
@@ -629,14 +655,8 @@ class BinariaDeBinaria implements AED {
   }
 
   @Override
-  public void remover(Player pos) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public boolean search(Object toSearch) {
-    return searchRec((String) toSearch, raiz);
+  public boolean search(String toSearch) {
+    return searchRec(toSearch, raiz);
   }
 
   public boolean searchRec(String name, BlackNo i) {
@@ -645,24 +665,52 @@ class BinariaDeBinaria implements AED {
       if (i.element.search(name)) {
         response = true;
       }
-      if (!response && i.left.element.search(name)) {
-        response = true;
+      if (!response) {
+        if (searchRec(name, i.left)) {
+          response = true;
+        }
       }
-      if (!response && i.right.element.search(name)) {
-        response = true;
+      if (!response) {
+        if (searchRec(name, i.right)) {
+          response = true;
+        }
       }
     }
     return response;
   }
 
   @Override
-  public boolean searchPrinting(Object toSearch) {
-    // TODO Auto-generated method stub
-    return false;
+  public boolean searchPrinting(String toSearch) {
+    return searchingPrinting(toSearch, raiz);
+  }
+
+  public boolean searchingPrinting(String name, BlackNo i) {
+    boolean response = false;
+    if (i != null) {
+      response = (i.element.searchPrinting(name));
+      if (!response) {
+        System.out.print(" ESQ");
+        if (searchingPrinting(name, i.left)) {
+          response = true;
+        } else {
+          System.out.print(" DIR");
+          if (searchingPrinting(name, i.right)) {
+            response = true;
+          }
+        }
+      }
+    }
+    return response;
   }
 
   @Override
   public void mostrar() {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public void remover(String pos) {
     // TODO Auto-generated method stub
 
   }
@@ -680,25 +728,25 @@ class Trie implements AED {
   }
 
   @Override
-  public void remover(Player pos) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public boolean search(Object toSearch) {
+  public boolean search(String toSearch) {
     // TODO Auto-generated method stub
     return false;
   }
 
   @Override
-  public boolean searchPrinting(Object toSearch) {
+  public boolean searchPrinting(String toSearch) {
     // TODO Auto-generated method stub
     return false;
   }
 
   @Override
   public void mostrar() {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public void remover(String pos) {
     // TODO Auto-generated method stub
 
   }

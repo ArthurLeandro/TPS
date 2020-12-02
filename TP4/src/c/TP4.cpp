@@ -300,54 +300,6 @@ node *insert(node *T, Player x)
   return (T);
 }
 
-node *Delete(node *T, Player x)
-{
-  node *p;
-  if (T == NULL)
-  {
-    return NULL;
-  }
-  else if (strcmp(x.name, T->data.name) > 0) // insert in right subtree
-  {
-    T->right = Delete(T->right, x);
-    if (BF(T) == 2)
-      if (BF(T->left) >= 0)
-        T = LL(T);
-      else
-        T = LR(T);
-  }
-  else if (strcmp(x.name, T->data.name) < 0)
-  {
-    T->left = Delete(T->left, x);
-    if (BF(T) == -2) //Rebalance during windup
-      if (BF(T->right) <= 0)
-        T = RR(T);
-      else
-        T = RL(T);
-  }
-  else
-  {
-    //data to be deleted is found
-    if (T->right != NULL)
-    { //delete its inorder succesor
-      p = T->right;
-      while (p->left != NULL)
-        p = p->left;
-      T->data = p->data;
-      T->right = Delete(T->right, p->data);
-      if (BF(T) == 2) //Rebalance during windup
-        if (BF(T->left) >= 0)
-          T = LL(T);
-        else
-          T = LR(T);
-    }
-    else
-      return (T->left);
-  }
-  T->ht = height(T);
-  return (T);
-}
-
 bool search(node *T, char *str)
 {
   bool response = false;
@@ -380,15 +332,15 @@ bool searchPrinting(node *T, char *str)
     {
       response = true;
     }
-    else if (comparisonValue == -1)
+    else if (comparisonValue < 0)
     {
       printf(" esq");
-      response = search(T->left, str);
+      response = searchPrinting(T->left, str);
     }
-    else if (comparisonValue == 1)
+    else if (comparisonValue >0)
     {
       printf(" dir");
-      response = search(T->right, str);
+      response = searchPrinting(T->right, str);
     }
   }
   return response;
@@ -408,20 +360,16 @@ int main()
     if (!controller)
     {
       Player toInsert = GetPlayerFromLine(word);
-      if (search(root, toInsert.name))
-      {
-        insert(root, toInsert);
-      }
+      root = insert(root, toInsert);
     }
     scanf("%[^\n]%*c", word);
   } while (!controller);
-  scanf("%[^\n]%*c", word);
   do
   {
     controller = IsAble(word);
     if (!controller)
     {
-      printf("%s", word);
+      printf("%s raiz", word);
       bool val = searchPrinting(root, word);
       if (val)
       {
@@ -435,6 +383,5 @@ int main()
     }
     scanf("%[^\n]%*c", word);
   } while (!controller);
-  preorder(root);
   return 0;
 }
