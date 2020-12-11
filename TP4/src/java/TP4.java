@@ -20,8 +20,10 @@ interface AED {
 
 public class TP4 {
   public static void main(String[] args) {
-    int EXERCISE_NUMBER = 2;
+    int EXERCISE_NUMBER = 6;
     AED structure = GetStructureBasedOnExerciseNumber(EXERCISE_NUMBER);
+    Trie first = new Trie();
+    Trie third = new Trie();
     boolean controller = false;
     String word = "";
     Scanner reader = new Scanner(System.in);
@@ -31,31 +33,37 @@ public class TP4 {
       if (!controller) {
         Player util = CreateNewPlayerFromFile(word);
         // if (!structure.search(util.getName()))
-        structure.inserir(util);
+        first.inserir(util);
+        third.inserirTwo(util);
       }
     } while (!controller);
+    Trie second = new Trie();
+    Trie fourth = new Trie();
+    do {
+      word = reader.nextLine();
+      controller = IsAble(word);
+      if (!controller) {
+        Player p = CreateNewPlayerFromFile(word);
+        second.inserir(p);
+        fourth.inserirTwo(p);
+      }
+    } while (!controller);
+    third.merge(fourth);
+    first.merge(second);
+    first.mostrar();
     boolean resp = false;
     do {
       word = reader.nextLine();
       controller = IsAble(word);
       if (!controller) {
-        if (EXERCISE_NUMBER == 5) {
-          if (!structure.search(word)) {
-            structure.search(word);
-          }
-        } else {
-          System.out.print(word + " raiz");
-          resp = structure.searchPrinting(word);
-          if (!resp)
-            System.out.println(" NAO");
-          else
-            System.out.println(" SIM");
-        }
+        System.out.print(word + " ");
+        resp = third.search(word);
+        if (resp)
+          System.out.println("SIM");
+        else
+          System.out.println("NAO");
       }
     } while (!controller);
-    if (EXERCISE_NUMBER == 5) {
-      structure.mostrar();
-    }
     reader.close();
   }
 
@@ -287,6 +295,29 @@ class NoAN {
   }
 }
 
+class TrieNode {
+  public char elemento;
+  public int tamanho = 255;
+  public TrieNode[] prox;
+  public boolean folha;
+
+  public TrieNode() {
+    this(' ');
+  }
+
+  public TrieNode(char elemento) {
+    this.elemento = elemento;
+    prox = new TrieNode[tamanho];
+    for (int i = 0; i < tamanho; i++)
+      prox[i] = null;
+    folha = false;
+  }
+
+  public static int hash(char x) {
+    return (int) x;
+  }
+}
+
 // #endregion
 
 // #region BST
@@ -414,6 +445,7 @@ class ArvoreBinaria implements AED {
 // #endregion
 
 // #region ALVINEGRA
+
 class Alvinegra implements AED {
   public NoAN raiz; // Raiz da arvore.
 
@@ -612,6 +644,7 @@ class Alvinegra implements AED {
 // #endregion
 
 // #region BINARIA DE BINARIA
+
 class BinariaDeBinaria implements AED {
 
   public BlackNo raiz;
@@ -719,18 +752,60 @@ class BinariaDeBinaria implements AED {
 // #endregion
 
 // #region TRIE
+
 class Trie implements AED {
 
-  @Override
-  public void inserir(Player pos) {
-    // TODO Auto-generated method stub
+  TrieNode raiz;
 
+  public Trie() {
+    this.raiz = new TrieNode();
   }
 
   @Override
-  public boolean search(String toSearch) {
-    // TODO Auto-generated method stub
-    return false;
+  public void inserir(Player pos) {
+    inserir(pos.getId() + " " + pos.getName());
+  }
+
+  public void inserirTwo(Player pos) {
+    inserir(pos.getName());
+  }
+
+  private void inserir(String s) {
+    inserir(s, raiz, 0);
+  }
+
+  private void inserir(String s, TrieNode no, int i) {
+    if (no.prox[s.charAt(i)] == null) {
+      no.prox[s.charAt(i)] = new TrieNode(s.charAt(i));
+      if (i == s.length() - 1) {
+        no.prox[s.charAt(i)].folha = true;
+      } else {
+        inserir(s, no.prox[s.charAt(i)], i + 1);
+      }
+    } else if (no.prox[s.charAt(i)].folha == false && i < s.length() - 1) {
+      inserir(s, no.prox[s.charAt(i)], i + 1);
+    } else {
+      System.out.println("Erro ao inserir!");
+    }
+  }
+
+  @Override
+  public boolean search(String s) {
+    return pesquisar(s, raiz, 0);
+  }
+
+  private boolean pesquisar(String s, TrieNode no, int i) {
+    boolean resp = false;
+    if (no.prox[s.charAt(i)] == null) {
+      resp = false;
+    } else if (i == s.length() - 1) {
+      resp = (no.prox[s.charAt(i)].folha == true);
+    } else if (i < s.length() - 1) {
+      resp = pesquisar(s, no.prox[s.charAt(i)], i + 1);
+    } else {
+      System.out.println("Erro ao pesquisar");
+    }
+    return resp;
   }
 
   @Override
@@ -739,17 +814,51 @@ class Trie implements AED {
     return false;
   }
 
-  @Override
   public void mostrar() {
-    // TODO Auto-generated method stub
+    mostrar("", raiz);
+  }
 
+  public void mostrar(String s, TrieNode no) {
+    if (no.folha == true) {
+      String t = "";
+      for (int i = 1; i < s.length(); i++) {
+        t += s.charAt(i);
+      }
+      System.out.println((t + no.elemento));
+    } else {
+      for (int i = 0; i < no.prox.length; i++) {
+        if (no.prox[i] != null) {
+          mostrar(s + no.elemento, no.prox[i]);
+        }
+      }
+    }
   }
 
   @Override
   public void remover(String pos) {
     // TODO Auto-generated method stub
-
   }
+
+  public void merge(Trie tree) {
+    merge("", tree.raiz);
+  }
+
+  public void merge(String s, TrieNode no) {
+    if (no.folha == true) {
+      String t = "";
+      for (int i = 1; i < s.length(); i++) {
+        t += s.charAt(i);
+      }
+      this.inserir(t + no.elemento);
+    } else {
+      for (int i = 0; i < no.prox.length; i++) {
+        if (no.prox[i] != null) {
+          merge(s + no.elemento, no.prox[i]);
+        }
+      }
+    }
+  }
+
 }
 
 // #endregion
